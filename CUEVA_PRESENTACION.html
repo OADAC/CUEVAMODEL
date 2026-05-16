@@ -1,0 +1,870 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CUEVA · El sistema operativo de la construcción</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Expanded:wght@600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --concrete:#E9E5DA;        /* hormigón claro — base física */
+  --concrete-2:#DDD8C9;
+  --paper:#F4F1E7;           /* papel de plano */
+  --ink:#16140E;             /* tinta cálida */
+  --ink-2:#3D3A2E;
+  --ink-3:#6E6A58;
+  --amber:#DC5212;           /* ámbar de obra — lo FÍSICO */
+  --amber-hi:#FF6B1F;
+  --blue:#15568C;            /* azul cianotipo — lo DIGITAL */
+  --blue-hi:#2E86DE;
+  --line:rgba(22,20,14,.16);
+  --line-soft:rgba(22,20,14,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  font-family:'Archivo',sans-serif;background:var(--concrete);color:var(--ink);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.5;
+}
+::selection{background:var(--amber);color:var(--paper)}
+
+/* ---------- texturas de fondo ---------- */
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.42;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");}
+.plan-grid{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(var(--line-soft) 1px,transparent 1px),
+    linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);
+  background-size:46px 46px;}
+
+/* ---------- tipografía base ---------- */
+.mono{font-family:'Space Mono',monospace}
+h1,h2,h3,.display{font-family:'Archivo Expanded','Archivo',sans-serif;font-weight:800;letter-spacing:-.015em;line-height:1.02}
+
+/* ---------- boot sequence ---------- */
+#boot{position:fixed;inset:0;z-index:9999;background:var(--ink);color:var(--concrete);
+  display:flex;flex-direction:column;justify-content:center;padding:0 8vw;transition:opacity .6s,transform .8s cubic-bezier(.7,0,.2,1)}
+#boot.done{opacity:0;transform:translateY(-100%);pointer-events:none}
+#boot .blabel{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.25em;color:var(--amber-hi);margin-bottom:30px}
+#boot .bline{font-family:'Space Mono',monospace;font-size:13px;color:#9b9684;margin:5px 0;opacity:0}
+#boot .bline.in{opacity:1}
+#boot .bline .ok{color:#7CB342;float:right}
+#boot .bbar{margin-top:30px;height:3px;background:rgba(255,255,255,.12);width:min(560px,80vw);position:relative;overflow:hidden}
+#boot .bbar::after{content:"";position:absolute;inset:0;width:0;background:var(--amber);animation:boot 2.6s cubic-bezier(.6,0,.3,1) forwards}
+@keyframes boot{to{width:100%}}
+
+/* ---------- nav ---------- */
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;
+  align-items:center;padding:14px 30px;background:rgba(233,229,218,.85);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line)}
+nav .logo{font-family:'Archivo Expanded';font-weight:900;font-size:19px;letter-spacing:.02em}
+nav .logo b{color:var(--amber)}
+nav .nlinks{display:flex;gap:2px}
+nav a{font-family:'Space Mono',monospace;font-size:11px;text-decoration:none;color:var(--ink-2);
+  padding:6px 9px;letter-spacing:.04em;transition:.2s;border-radius:2px}
+nav a:hover{background:var(--ink);color:var(--concrete)}
+nav .ncta{background:var(--amber);color:var(--paper)!important}
+nav .ncta:hover{background:var(--ink)}
+
+/* ---------- estructura secciones ---------- */
+section{position:relative;z-index:2;padding:120px 30px;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+.wrap{max-width:1240px;margin:0 auto;width:100%}
+section.ink{background:var(--ink);color:var(--concrete)}
+section.ink .plan-grid-local{position:absolute;inset:0;background-image:
+  linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:46px 46px;pointer-events:none}
+section.paper{background:var(--paper)}
+
+/* etiqueta de sección tipo plano */
+.sec-tag{display:flex;align-items:baseline;gap:14px;margin-bottom:34px;
+  font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;color:var(--amber)}
+.sec-tag .code{font-size:13px;font-weight:700}
+.sec-tag .ln{flex:1;height:1px;background:currentColor;opacity:.4}
+.ink .sec-tag{color:var(--amber-hi)}
+
+/* títulos */
+.kicker{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.22em;
+  text-transform:uppercase;color:var(--ink-3);margin-bottom:18px}
+.ink .kicker{color:#9b9684}
+h2{font-size:clamp(34px,5vw,62px);text-transform:uppercase}
+h2 .am{color:var(--amber)}
+h2 .bl{color:var(--blue)}
+.ink h2 .bl{color:var(--blue-hi)}
+.lead{font-size:clamp(17px,1.9vw,21px);max-width:760px;color:var(--ink-2);margin-top:22px;line-height:1.55}
+.ink .lead{color:#c8c4b4}
+
+/* ---------- reveal ---------- */
+.rv{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
+.rv.show{opacity:1;transform:none}
+.rv-d1{transition-delay:.09s}.rv-d2{transition-delay:.18s}.rv-d3{transition-delay:.27s}
+.rv-d4{transition-delay:.36s}.rv-d5{transition-delay:.45s}.rv-d6{transition-delay:.54s}
+
+/* cota de plano decorativa */
+.cota{display:flex;align-items:center;gap:0;font-family:'Space Mono',monospace;
+  font-size:11px;color:var(--ink-3);margin:6px 0}
+.cota .tick{width:1px;height:9px;background:currentColor}
+.cota .bar{flex:1;height:1px;background:currentColor}
+.cota .val{padding:0 8px;white-space:nowrap}
+
+/* =================================================== HERO */
+#hero{background:var(--ink);color:var(--concrete);overflow:hidden;padding-top:140px}
+#hero .plan-grid-local{position:absolute;inset:0;background-image:
+  linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),
+  linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:46px 46px}
+.hero-coord{position:absolute;font-family:'Space Mono',monospace;font-size:11px;color:#56523f;letter-spacing:.1em}
+#hero .hwrap{position:relative;z-index:3}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.2);
+  padding:8px 14px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;
+  color:var(--amber-hi);margin-bottom:38px}
+.hero-eyebrow .dot{width:7px;height:7px;background:var(--amber);border-radius:50%;animation:blink 1.6s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+#hero h1{font-size:clamp(46px,9vw,128px);text-transform:uppercase;line-height:.92}
+#hero h1 .l{display:block;overflow:hidden}
+#hero h1 .l span{display:block;transform:translateY(110%);animation:rise 1s cubic-bezier(.16,1,.3,1) forwards}
+#hero h1 .l:nth-child(2) span{animation-delay:.12s}
+#hero h1 .l:nth-child(3) span{animation-delay:.24s}
+@keyframes rise{to{transform:none}}
+#hero h1 .am{color:var(--amber)}
+#hero h1 .out{-webkit-text-stroke:2px var(--concrete);color:transparent}
+.hero-sub{margin-top:34px;font-size:clamp(16px,2vw,22px);max-width:680px;color:#c8c4b4;
+  opacity:0;animation:fade 1s ease .7s forwards}
+@keyframes fade{to{opacity:1}}
+.hero-meta{margin-top:54px;display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  border-top:1px solid rgba(255,255,255,.18);opacity:0;animation:fade 1s ease 1s forwards}
+.hero-meta .m{padding:22px 22px 22px 0;border-right:1px solid rgba(255,255,255,.12)}
+.hero-meta .m:last-child{border-right:0}
+.hero-meta .mv{font-family:'Archivo Expanded';font-weight:900;font-size:clamp(26px,3vw,40px);color:var(--amber-hi)}
+.hero-meta .ml{font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.1em;color:#9b9684;margin-top:6px}
+.scroll-cue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);
+  font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.2em;color:#56523f;
+  display:flex;flex-direction:column;align-items:center;gap:8px}
+.scroll-cue .arw{width:1px;height:34px;background:linear-gradient(var(--amber),transparent);animation:cue 1.8s infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}
+  51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+/* =================================================== PARADIGMA */
+.shift{display:grid;grid-template-columns:1fr auto 1fr;gap:0;align-items:stretch;margin-top:50px;border:1px solid var(--line)}
+.shift .side{padding:40px 36px}
+.shift .from{background:transparent}
+.shift .to{background:var(--ink);color:var(--concrete)}
+.shift .mid{display:flex;align-items:center;justify-content:center;padding:0 24px;background:var(--amber)}
+.shift .mid svg{width:34px;height:34px}
+.shift .stag{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.16em;margin-bottom:18px}
+.shift .from .stag{color:var(--ink-3)}
+.shift .to .stag{color:var(--amber-hi)}
+.shift h3{font-size:25px;text-transform:uppercase;margin-bottom:14px}
+.shift p{font-size:15px;color:var(--ink-2)}
+.shift .to p{color:#c8c4b4}
+.shift ul{list-style:none;margin-top:16px}
+.shift li{font-family:'Space Mono',monospace;font-size:12.5px;padding:7px 0;border-bottom:1px dashed var(--line)}
+.shift .to li{border-color:rgba(255,255,255,.14)}
+
+/* =================================================== ACTIVO (concepto) */
+.asset-stage{display:grid;grid-template-columns:1.05fr .95fr;gap:54px;align-items:center;margin-top:46px}
+.asset-vis{position:relative;aspect-ratio:1/.92;border:1px solid var(--line);background:
+  repeating-linear-gradient(45deg,transparent,transparent 22px,var(--line-soft) 22px,var(--line-soft) 23px)}
+.asset-vis .corner{position:absolute;width:13px;height:13px;border:2px solid var(--amber)}
+.asset-vis .corner.tl{top:-1px;left:-1px;border-right:0;border-bottom:0}
+.asset-vis .corner.tr{top:-1px;right:-1px;border-left:0;border-bottom:0}
+.asset-vis .corner.bl{bottom:-1px;left:-1px;border-right:0;border-top:0}
+.asset-vis .corner.br{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.asset-svg{width:100%;height:100%;display:block}
+.asset-side .kicker{margin-bottom:14px}
+.asset-side h2{font-size:clamp(28px,3.4vw,44px)}
+.asset-attrs{margin-top:26px;display:flex;flex-direction:column;gap:0;border-top:1px solid var(--line)}
+.asset-attrs .at{display:flex;justify-content:space-between;align-items:center;padding:13px 0;
+  border-bottom:1px solid var(--line);font-family:'Space Mono',monospace;font-size:12.5px}
+.asset-attrs .at .k{color:var(--ink-3);letter-spacing:.06em}
+.asset-attrs .at .v{font-weight:700;color:var(--blue)}
+.asset-attrs .at .v.am{color:var(--amber)}
+.quote-line{margin-top:30px;border-left:3px solid var(--amber);padding:6px 0 6px 20px;
+  font-family:'Archivo Expanded';font-weight:700;font-size:clamp(17px,2.1vw,24px);text-transform:uppercase;line-height:1.18}
+
+/* =================================================== STACK PRODUCTO HOY */
+.built-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
+.built-card{border:1px solid var(--line);background:var(--paper);padding:26px 24px;position:relative;transition:.3s}
+.built-card:hover{background:var(--ink);color:var(--concrete);transform:translateY(-5px)}
+.built-card .bnum{font-family:'Space Mono',monospace;font-size:11px;color:var(--amber);letter-spacing:.1em}
+.built-card h3{font-size:19px;text-transform:uppercase;margin:14px 0 10px}
+.built-card p{font-size:13.5px;color:var(--ink-2)}
+.built-card:hover p{color:#c8c4b4}
+.built-card .status{margin-top:16px;display:inline-flex;align-items:center;gap:7px;
+  font-family:'Space Mono',monospace;font-size:10.5px;letter-spacing:.08em;color:#5b8c2e}
+.built-card .status .led{width:8px;height:8px;border-radius:50%;background:#7CB342;box-shadow:0 0 0 3px rgba(124,179,66,.25)}
+.built-card .status.dev{color:var(--blue)}
+.built-card .status.dev .led{background:var(--blue-hi);box-shadow:0 0 0 3px rgba(46,134,222,.25)}
+
+/* =================================================== LÍNEAS DE NEGOCIO */
+.lines-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:44px;border:1px solid var(--line)}
+.line-cell{padding:30px 24px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  position:relative;transition:.3s;cursor:default;background:var(--paper)}
+.line-cell:hover{background:var(--amber);color:var(--paper)}
+.line-cell .lc-no{font-family:'Space Mono',monospace;font-size:11px;color:var(--amber)}
+.line-cell:hover .lc-no{color:var(--ink)}
+.line-cell h3{font-size:17px;text-transform:uppercase;margin:14px 0 9px}
+.line-cell p{font-size:12.5px;color:var(--ink-2)}
+.line-cell:hover p{color:var(--paper)}
+.line-cell .lc-tag{margin-top:14px;font-family:'Space Mono',monospace;font-size:10px;
+  letter-spacing:.08em;border:1px solid currentColor;display:inline-block;padding:3px 7px;opacity:.7}
+
+/* =================================================== MODELO DE INGRESO 7 CAPAS */
+.layers{margin-top:46px;display:flex;flex-direction:column;gap:9px}
+.layer-row{display:grid;grid-template-columns:46px 1fr;gap:0;border:1px solid rgba(255,255,255,.16);
+  align-items:stretch;transition:.3s;cursor:default}
+.layer-row:hover{transform:translateX(10px);border-color:var(--amber)}
+.layer-row .lyr-id{background:rgba(255,255,255,.06);display:flex;align-items:center;justify-content:center;
+  font-family:'Space Mono',monospace;font-weight:700;font-size:15px;color:var(--amber-hi)}
+.layer-row .lyr-body{padding:16px 22px;display:grid;grid-template-columns:1fr auto;gap:20px;align-items:center}
+.layer-row h3{font-size:16px;text-transform:uppercase;color:var(--concrete)}
+.layer-row p{font-size:12.5px;color:#9b9684;margin-top:3px;font-family:'Space Mono',monospace}
+.layer-row .lyr-amt{font-family:'Archivo Expanded';font-weight:900;font-size:clamp(17px,2vw,25px);
+  color:var(--amber-hi);white-space:nowrap;text-align:right}
+.layer-row .lyr-amt small{display:block;font-family:'Space Mono',monospace;font-weight:400;
+  font-size:10px;color:#807c6a;letter-spacing:.06em}
+.ltv-bar{margin-top:30px;border:1px dashed var(--amber);padding:22px 26px;display:grid;
+  grid-template-columns:1fr auto;gap:20px;align-items:center;background:rgba(220,82,18,.08)}
+.ltv-bar .ltv-l{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.1em;color:#c8c4b4}
+.ltv-bar .ltv-v{font-family:'Archivo Expanded';font-weight:900;font-size:clamp(30px,4vw,52px);color:var(--amber-hi)}
+
+/* =================================================== MERCADO / MOMENTO */
+.forces{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
+.force{border:1px solid var(--line);padding:26px 24px;background:var(--paper);position:relative;overflow:hidden}
+.force .fnum{font-family:'Archivo Expanded';font-weight:900;font-size:46px;color:var(--concrete-2);
+  position:absolute;top:8px;right:14px;line-height:1}
+.force h3{font-size:16px;text-transform:uppercase;margin-bottom:9px;position:relative}
+.force p{font-size:13px;color:var(--ink-2);position:relative}
+.force .fbadge{margin-top:14px;font-family:'Space Mono',monospace;font-size:10.5px;color:var(--amber);letter-spacing:.06em}
+
+/* =================================================== PIPELINE */
+.pipe{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:44px}
+.pipe-card{border:1px solid rgba(255,255,255,.16);padding:30px 28px;position:relative;transition:.3s}
+.pipe-card:hover{border-color:var(--amber);background:rgba(255,255,255,.03)}
+.pipe-card .pc-code{font-family:'Space Mono',monospace;font-size:11px;color:var(--amber-hi);letter-spacing:.1em}
+.pipe-card h3{font-size:21px;text-transform:uppercase;margin:12px 0 12px;color:var(--concrete)}
+.pipe-card p{font-size:13.5px;color:#c8c4b4;line-height:1.6}
+.pipe-card .pc-list{margin-top:14px;display:flex;flex-wrap:wrap;gap:7px}
+.pipe-card .chip{font-family:'Space Mono',monospace;font-size:10.5px;border:1px solid rgba(255,255,255,.22);
+  padding:4px 9px;color:#c8c4b4}
+
+/* =================================================== GRAPH (m² red) */
+.graph-block{display:grid;grid-template-columns:.85fr 1.15fr;gap:50px;align-items:center;margin-top:44px}
+.graph-svg{width:100%;border:1px solid var(--line);background:var(--paper)}
+
+/* =================================================== MACRO / VISIÓN */
+.macro-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:44px;border:1px solid rgba(255,255,255,.16)}
+.macro-cell{padding:34px 28px;border-right:1px solid rgba(255,255,255,.13)}
+.macro-cell:last-child{border-right:0}
+.macro-cell .mc-ic{width:40px;height:40px;border:1px solid var(--amber);display:flex;align-items:center;
+  justify-content:center;margin-bottom:18px}
+.macro-cell .mc-ic svg{width:20px;height:20px}
+.macro-cell h3{font-size:18px;text-transform:uppercase;color:var(--concrete);margin-bottom:10px}
+.macro-cell p{font-size:13px;color:#9b9684;line-height:1.6}
+
+/* =================================================== VALOR */
+.val-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:44px}
+.val-card{border:1px solid var(--line);background:var(--paper);padding:30px 24px;text-align:left}
+.val-card .vc-y{font-family:'Space Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.1em}
+.val-card .vc-n{font-family:'Archivo Expanded';font-weight:900;font-size:clamp(28px,3.4vw,44px);
+  margin:12px 0 4px;color:var(--ink)}
+.val-card .vc-l{font-size:12px;color:var(--ink-3);font-family:'Space Mono',monospace}
+.val-card.hot{background:var(--ink)}
+.val-card.hot .vc-n{color:var(--amber-hi)}
+.val-card.hot .vc-l{color:#9b9684}
+.val-card.hot .vc-y{color:var(--amber-hi)}
+
+/* =================================================== CIERRE */
+#cierre{background:var(--amber);color:var(--ink);text-align:center;align-items:center}
+#cierre h2{font-size:clamp(36px,6vw,82px);max-width:1000px}
+#cierre .cl-sub{font-family:'Space Mono',monospace;margin-top:24px;font-size:14px;letter-spacing:.06em;max-width:620px}
+#cierre .cl-foot{margin-top:60px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.14em;
+  border-top:1px solid rgba(22,20,14,.3);padding-top:24px;width:100%;max-width:900px}
+
+/* footer */
+footer{position:relative;z-index:2;background:var(--ink);color:#807c6a;padding:30px;
+  font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;text-align:center}
+
+/* responsive */
+@media(max-width:980px){
+  nav .nlinks{display:none}
+  section{padding:90px 20px}
+  .shift{grid-template-columns:1fr}
+  .shift .mid{padding:18px;transform:rotate(90deg)}
+  .asset-stage{grid-template-columns:1fr;gap:34px}
+  .built-grid,.forces,.macro-grid{grid-template-columns:1fr}
+  .lines-grid{grid-template-columns:1fr 1fr}
+  .pipe{grid-template-columns:1fr}
+  .graph-block{grid-template-columns:1fr;gap:28px}
+  .hero-meta{grid-template-columns:1fr 1fr}
+  .val-grid{grid-template-columns:1fr 1fr}
+  .macro-cell{border-right:0;border-bottom:1px solid rgba(255,255,255,.13)}
+}
+@media print{#boot,nav,.scroll-cue,.grain{display:none}section{min-height:0;page-break-after:always}}
+</style>
+</head>
+<body>
+
+<div class="plan-grid"></div>
+<div class="grain"></div>
+
+<!-- ===================== BOOT ===================== -->
+<div id="boot">
+  <div class="blabel">// CUEVA OS · SECUENCIA DE ARRANQUE</div>
+  <div class="bline" data-i="0">cargando núcleo del sistema operativo<span class="ok">OK</span></div>
+  <div class="bline" data-i="1">neuronas · 1ª generación · lectores + apis + cómputo<span class="ok">OK</span></div>
+  <div class="bline" data-i="2">designer · diseño · despiece · simulación sísmica<span class="ok">OK</span></div>
+  <div class="bline" data-i="3">manager · interfaces de 8 agentes<span class="ok">OK</span></div>
+  <div class="bline" data-i="4">dpp + carpeta madre · dimensiones de datos<span class="ok">OK</span></div>
+  <div class="bline" data-i="5">red de activos físico-digitales<span class="ok">LISTO</span></div>
+  <div class="bbar"></div>
+</div>
+
+<!-- ===================== NAV ===================== -->
+<nav>
+  <div class="logo">CUE<b>V</b>A</div>
+  <div class="nlinks">
+    <a href="#hero">00·INICIO</a>
+    <a href="#paradigma">01·PARADIGMA</a>
+    <a href="#activo">02·EL ACTIVO</a>
+    <a href="#producto">03·PRODUCTO</a>
+    <a href="#lineas">04·LÍNEAS</a>
+    <a href="#modelo">05·MODELO</a>
+    <a href="#mercado">06·MERCADO</a>
+    <a href="#pipeline">07·PIPELINE</a>
+    <a href="#valor">09·VALOR</a>
+    <a href="#cierre" class="ncta">CONTACTO</a>
+  </div>
+</nav>
+
+<!-- ===================== 00 · HERO ===================== -->
+<section id="hero">
+  <div class="plan-grid-local"></div>
+  <span class="hero-coord" style="top:120px;right:30px">N 39°97′ · E 4°10′ // MENORCA</span>
+  <span class="hero-coord" style="bottom:120px;left:30px">REV. 3.0 // MAYO 2026</span>
+  <div class="wrap hwrap">
+    <div class="hero-eyebrow"><span class="dot"></span>DOSSIER DE PROYECTO · CONFIDENCIAL</div>
+    <h1>
+      <span class="l"><span>El sistema</span></span>
+      <span class="l"><span class="out">operativo de la</span></span>
+      <span class="l"><span class="am">construcción</span></span>
+    </h1>
+    <p class="hero-sub">CUEVA convierte cada elemento que se fabrica y se monta en un <strong style="color:var(--concrete)">activo digital con colateral físico</strong>. Una red donde todos los agentes del sector — fabricantes, montadores, arquitectos, promotores, administraciones y el propio cliente final — operan sobre el mismo sistema.</p>
+    <div class="hero-meta">
+      <div class="m"><div class="mv" data-count="14" data-suffix=" €">0</div><div class="ml">ROYALTY / m² DE ACTIVO</div></div>
+      <div class="m"><div class="mv" data-count="8">0</div><div class="ml">INTERFACES DE AGENTE OPERATIVAS</div></div>
+      <div class="m"><div class="mv" data-count="7">0</div><div class="ml">CAPAS DE INGRESO</div></div>
+      <div class="m"><div class="mv" data-count="100" data-suffix="%">0</div><div class="ml">PRODUCTO NÚCLEO TERMINADO</div></div>
+    </div>
+  </div>
+  <div class="scroll-cue"><span>DESPLAZAR</span><span class="arw"></span></div>
+</section>
+
+<!-- ===================== 01 · PARADIGMA ===================== -->
+<section id="paradigma" class="paper">
+  <div class="wrap">
+    <div class="sec-tag rv"><span class="code">[01]</span><span>CAMBIO DE PARADIGMA</span><span class="ln"></span></div>
+    <div class="kicker rv">El sector más grande del mundo. El menos digitalizado.</div>
+    <h2 class="rv rv-d1">No construimos cosas.<br><span class="am">Emitimos activos.</span></h2>
+    <p class="lead rv rv-d2">La industria de la construcción mueve 14 billones de dólares al año y sigue operando sin un sistema operativo común. Cada pieza, cada obra, cada dato vive aislado. CUEVA cambia la unidad fundamental: del <em>elemento construido</em> al <em>activo físico-digital trazable</em>.</p>
+
+    <div class="shift rv rv-d3">
+      <div class="side from">
+        <div class="stag">// MODELO ACTUAL</div>
+        <h3>Construir un<br>elemento</h3>
+        <p>El elemento se fabrica, se transporta, se monta. El dato se pierde en el camino. La trazabilidad es papel. El valor termina cuando la obra termina.</p>
+        <ul>
+          <li>— dato fragmentado</li>
+          <li>— sin identidad digital</li>
+          <li>— valor de un solo uso</li>
+          <li>— cero red</li>
+        </ul>
+      </div>
+      <div class="mid">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#16140E" stroke-width="2.4"><path d="M4 12h16M14 6l6 6-6 6"/></svg>
+      </div>
+      <div class="side to">
+        <div class="stag">// MODELO CUEVA</div>
+        <h3>Emitir un<br>activo</h3>
+        <p>El elemento nace con un gemelo digital vinculado, una neurona, un Proof of Installation y un pasaporte de producto. Vive en el OS. Genera valor durante toda su vida.</p>
+        <ul>
+          <li>— dato unificado y vivo</li>
+          <li>— identidad digital permanente</li>
+          <li>— valor recurrente compuesto</li>
+          <li>— nodo de una red</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 02 · EL ACTIVO ===================== -->
+<section id="activo">
+  <div class="wrap">
+    <div class="sec-tag rv"><span class="code">[02]</span><span>EL PRODUCTO ES EL ACTIVO</span><span class="ln"></span></div>
+    <div class="asset-stage">
+      <div class="asset-vis rv">
+        <span class="corner tl"></span><span class="corner tr"></span>
+        <span class="corner bl"></span><span class="corner br"></span>
+        <svg class="asset-svg" viewBox="0 0 420 380" id="assetSvg">
+          <!-- COLATERAL FÍSICO: módulo isométrico ámbar -->
+          <g id="physical">
+            <polygon points="120,210 210,165 300,210 210,255" fill="#DC5212"/>
+            <polygon points="120,210 210,255 210,330 120,285" fill="#A83D0C"/>
+            <polygon points="300,210 210,255 210,330 300,285" fill="#C04A10"/>
+            <!-- neurona embebida -->
+            <circle cx="210" cy="210" r="9" fill="#16140E" stroke="#FF6B1F" stroke-width="2"/>
+            <circle cx="210" cy="210" r="16" fill="none" stroke="#FF6B1F" stroke-width="1" opacity="0.6">
+              <animate attributeName="r" values="9;26;9" dur="2.6s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" values="0.7;0;0.7" dur="2.6s" repeatCount="indefinite"/>
+            </circle>
+          </g>
+          <!-- GEMELO DIGITAL: wireframe azul desplazado -->
+          <g id="digital" opacity="0.92">
+            <polygon points="120,90 210,45 300,90 210,135" fill="none" stroke="#2E86DE" stroke-width="1.6"/>
+            <polygon points="120,90 210,135 210,168 120,123" fill="none" stroke="#2E86DE" stroke-width="1.6"/>
+            <polygon points="300,90 210,135 210,168 300,123" fill="none" stroke="#2E86DE" stroke-width="1.6"/>
+            <!-- nodos del wireframe -->
+            <circle cx="120" cy="90" r="3" fill="#2E86DE"/><circle cx="210" cy="45" r="3" fill="#2E86DE"/>
+            <circle cx="300" cy="90" r="3" fill="#2E86DE"/><circle cx="210" cy="135" r="3" fill="#2E86DE"/>
+            <circle cx="120" cy="123" r="3" fill="#2E86DE"/><circle cx="300" cy="123" r="3" fill="#2E86DE"/>
+            <circle cx="210" cy="168" r="3" fill="#2E86DE"/>
+          </g>
+          <!-- VÍNCULO: datos fluyendo entre físico y digital -->
+          <line x1="210" y1="168" x2="210" y2="201" stroke="#FF6B1F" stroke-width="2" stroke-dasharray="4 5">
+            <animate attributeName="stroke-dashoffset" values="18;0" dur="0.7s" repeatCount="indefinite"/>
+          </line>
+          <text x="232" y="186" font-family="'Space Mono',monospace" font-size="10" fill="#6E6A58">VÍNCULO</text>
+          <text x="318" y="74" font-family="'Space Mono',monospace" font-size="11" fill="#2E86DE">DIGITAL</text>
+          <text x="318" y="240" font-family="'Space Mono',monospace" font-size="11" fill="#DC5212">FÍSICO</text>
+        </svg>
+      </div>
+      <div class="asset-side">
+        <div class="kicker rv">Activo digital con colateral físico</div>
+        <h2 class="rv rv-d1">Si no está en<br>el sistema,<br><span class="bl">no existe.</span></h2>
+        <div class="asset-attrs rv rv-d2">
+          <div class="at"><span class="k">COLATERAL FÍSICO</span><span class="v am">elemento real</span></div>
+          <div class="at"><span class="k">IDENTIDAD</span><span class="v">neurona + tag RFID</span></div>
+          <div class="at"><span class="k">CERTIFICACIÓN</span><span class="v">proof of installation</span></div>
+          <div class="at"><span class="k">DATOS</span><span class="v">dpp + carpeta madre</span></div>
+          <div class="at"><span class="k">CÓMPUTO</span><span class="v">nodo de red distribuida</span></div>
+          <div class="at"><span class="k">PROPIEDAD</span><span class="v">registro on-chain</span></div>
+        </div>
+        <div class="quote-line rv rv-d3">CUEVA es la evolución del registro y el catastro: un sistema operativo donde el activo nace, se certifica, se conecta y se gobierna.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 03 · PRODUCTO HOY ===================== -->
+<section id="producto" class="paper">
+  <div class="wrap">
+    <div class="sec-tag rv"><span class="code">[03]</span><span>QUÉ EXISTE HOY · MAYO 2026</span><span class="ln"></span></div>
+    <div class="kicker rv">No es una promesa. Es producto terminado.</div>
+    <h2 class="rv rv-d1">El núcleo del OS,<br><span class="am">operativo.</span></h2>
+    <p class="lead rv rv-d2">Años de desarrollo ya entregados. El sistema funciona end-to-end: diseña, fabrica, emite, monta, certifica y gestiona. Lo único pendiente — la capa blockchain — entra en producción en septiembre de 2026.</p>
+
+    <div class="built-grid">
+      <div class="built-card rv rv-d1">
+        <div class="bnum">[ 03.1 ]</div>
+        <h3>Neuronas · 1ª gen.</h3>
+        <p>Lectores integrados, APIs, comunicaciones, cómputo y almacenamiento. Conexión on-line y off-line. Varios nodos enlazados entre sí.</p>
+        <div class="status"><span class="led"></span>TERMINADO</div>
+      </div>
+      <div class="built-card rv rv-d2">
+        <div class="bnum">[ 03.2 ]</div>
+        <h3>Designer avanzado</h3>
+        <p>Diseño, despiece, planificación y documentos. IA en infografías, proyecto básico, plan de seguridad y salud, memoria de carpinterías y cálculo. Motor de simulación sísmica.</p>
+        <div class="status"><span class="led"></span>TERMINADO</div>
+      </div>
+      <div class="built-card rv rv-d3">
+        <div class="bnum">[ 03.3 ]</div>
+        <h3>Manager</h3>
+        <p>Da de alta cada activo, recibe las lecturas, gestiona las neuronas y orquesta la información de las ocho interfaces de agente.</p>
+        <div class="status"><span class="led"></span>OPERATIVO</div>
+      </div>
+      <div class="built-card rv rv-d1">
+        <div class="bnum">[ 03.4 ]</div>
+        <h3>8 interfaces de agente</h3>
+        <p>Fabricante, montador, promotor, administración pública, cliente, constructor, agente de seguridad y salud, auditor. Cada uno ve su realidad.</p>
+        <div class="status"><span class="led"></span>1ª FASE TERMINADA</div>
+      </div>
+      <div class="built-card rv rv-d2">
+        <div class="bnum">[ 03.5 ]</div>
+        <h3>DPP + Carpeta Madre</h3>
+        <p>Pasaporte digital de producto y carpeta documental con todas las dimensiones de datos del activo y de su conjunción en obra.</p>
+        <div class="status"><span class="led"></span>TERMINADO</div>
+      </div>
+      <div class="built-card rv rv-d3">
+        <div class="bnum">[ 03.6 ]</div>
+        <h3>Capa Blockchain</h3>
+        <p>Arquitectura definida sobre Polygon / Stellar. Proof of Installation, NFTs y gobernanza on-chain. En producción: septiembre 2026.</p>
+        <div class="status dev"><span class="led"></span>EN INTEGRACIÓN · SEP·26</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 04 · LÍNEAS DE NEGOCIO ===================== -->
+<section id="lineas">
+  <div class="wrap">
+    <div class="sec-tag rv"><span class="code">[04]</span><span>LÍNEAS DE NEGOCIO</span><span class="ln"></span></div>
+    <div class="kicker rv">Un sistema. Ocho frentes de valor.</div>
+    <h2 class="rv rv-d1">Una plataforma,<br><span class="bl">muchas líneas.</span></h2>
+
+    <div class="lines-grid">
+      <div class="line-cell rv rv-d1"><div class="lc-no">L·01</div><h3>CUEVA OS</h3><p>Designer + Manager + interfaces + DPP. El sistema operativo donde todo nace y se gestiona.</p><span class="lc-tag">PLATAFORMA</span></div>
+      <div class="line-cell rv rv-d2"><div class="lc-no">L·02</div><h3>Red de activos</h3><p>Royalty por cada m² de activo físico-digital emitido y colocado en la red.</p><span class="lc-tag">CORE · 7+7 €/m²</span></div>
+      <div class="line-cell rv rv-d3"><div class="lc-no">L·03</div><h3>iPath</h3><p>Producto de infraestructura CUEVA. Pavimento y espacio urbano inteligente. Explotación 100% propia.</p><span class="lc-tag">INFRAESTRUCTURA</span></div>
+      <div class="line-cell rv rv-d4"><div class="lc-no">L·04</div><h3>Red distribuida</h3><p>Cómputo, almacenamiento y blockchain sobre la red de neuronas. El objetivo macro.</p><span class="lc-tag">ESCALADO</span></div>
+      <div class="line-cell rv rv-d1"><div class="lc-no">L·05</div><h3>Servicios verticales</h3><p>Gestión de activos: stock municipal, monitoreo de servicios, gobernanza vecinal, seguridad RFID.</p><span class="lc-tag">RECURRENTE</span></div>
+      <div class="line-cell rv rv-d2"><div class="lc-no">L·06</div><h3>Marketplace</h3><p>Modelos de vivienda, edificación e infraestructura. Vivienda generativa con IA. Comisión por activación.</p><span class="lc-tag">TRANSACCIONAL</span></div>
+      <div class="line-cell rv rv-d3"><div class="lc-no">L·07</div><h3>Hardware licenciado</h3><p>Neuronas, tags, herramientas y moldes. El diseño es CUEVA; la fabricación, licenciada.</p><span class="lc-tag">LICENCIA</span></div>
+      <div class="line-cell rv rv-d4"><div class="lc-no">L·08</div><h3>Moolde · 25%</h3><p>Implementador exclusivo del segmento obra in situ. CUEVA participa con el 25% de la sociedad.</p><span class="lc-tag">PARTICIPACIÓN</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 05 · MODELO DE INGRESO ===================== -->
+<section id="modelo" class="ink">
+  <div class="plan-grid-local"></div>
+  <div class="wrap">
+    <div class="sec-tag rv"><span class="code">[05]</span><span>MODELO DE INGRESO · 7 CAPAS</span><span class="ln"></span></div>
+    <div class="kicker rv">Cada activo paga durante toda su vida.</div>
+    <h2 class="rv rv-d1">Siete capas sobre<br>el mismo <span class="bl">activo.</span></h2>
+    <p class="lead rv rv-d2">El royalty de emisión es solo el principio. Sobre cada activo se acumulan capas de ingreso recurrente: gestión, cómputo, transacciones y gobernanza. El valor no termina con la obra — empieza.</p>
+
+    <div class="layers">
+      <div class="layer-row rv rv-d1">
+        <div class="lyr-id">A</div>
+        <div class="lyr-body">
+          <div><h3>Royalty de emisión</h3><p>m² producido + m² colocado</p></div>
+          <div class="lyr-amt">7 + 7 €<small>POR m² DE ACTIVO</small></div>
+        </div>
+      </div>
+      <div class="layer-row rv rv-d1">
+        <div class="lyr-id">B</div>
+        <div class="lyr-body">
+          <div><h3>Diseño y Manager</h3><p>proyecto encargado y dado de alta</p></div>
+          <div class="lyr-amt">FEE<small>POR PROYECTO</small></div>
+        </div>
+      </div>
+      <div class="layer-row rv rv-d2">
+        <div class="lyr-id">C</div>
+        <div class="lyr-body">
+          <div><h3>Hardware licenciado</h3><p>neuronas · tags · herramientas · moldes</p></div>
+          <div class="lyr-amt">ROYALTY<small>POR UNIDAD</small></div>
+        </div>
+      </div>
+      <div class="layer-row rv rv-d2">
+        <div class="lyr-id">D</div>
+        <div class="lyr-body">
+          <div><h3>Servicios verticales</h3><p>stock municipal · gobernanza · seguridad RFID</p></div>
+          <div class="lyr-amt">SUSCRIPCIÓN<small>RECURRENTE / ACTIVO</small></div>
+        </div>
+      </div>
+      <div class="layer-row rv rv-d3">
+        <div class="lyr-id">E</div>
+        <div class="lyr-body">
+          <div><h3>Red distribuida</h3><p>cómputo + almacenamiento + blockchain</p></div>
+          <div class="lyr-amt">25% + FEE<small>POR TRANSACCIÓN</small></div>
+        </div>
+      </div>
+      <div class="layer-row rv rv-d3">
+        <div class="lyr-id">F</div>
+        <div class="lyr-body">
+          <div><h3>Marketplace</h3><p>modelos + componentes + vivienda generativa</p></div>
+          <div class="lyr-amt">COMISIÓN<small>POR ACTIVACIÓN</small></div>
+        </div>
+      </div>
+      <div class="layer-row rv rv-d4">
+        <div class="lyr-id">G</div>
+        <div class="lyr-body">
+          <div><h3>Participación Moolde</h3><p>segmento obra in situ · encofrados</p></div>
+          <div class="lyr-amt">25%<small>DE LA SOCIEDAD</small></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ltv-bar rv rv-d2">
+      <div class="ltv-l">// VALOR DE VIDA ACUMULADO POR m² DE ACTIVO EMITIDO<br>royalty + diseño + hardware + servicios + red + marketplace · horizonte 10 años</div>
+      <div class="ltv-v" data-count="58" data-prefix="≈ €">0</div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 06 · MERCADO ===================== -->
+<section id="mercado" class="paper">
+  <div class="wrap">
+    <div class="sec-tag rv"><span class="code">[06]</span><span>MERCADO Y MOMENTO</span><span class="ln"></span></div>
+    <div class="kicker rv">La ventana se abre ahora.</div>
+    <h2 class="rv rv-d1">Tres fuerzas que<br>obligan al <span class="am">cambio.</span></h2>
+    <p class="lead rv rv-d2">La regulación europea, la escasez estructural de mano de obra y la presión de descarbonización convergen en una ventana de pocos años. La industrialización digital deja de ser una opción para volverse una obligación.</p>
+
+    <div class="forces">
+      <div class="force rv rv-d1">
+        <div class="fnum">01</div>
+        <h3>Regulación EU</h3>
+        <p>El Pasaporte Digital de Producto pasa a ser obligatorio. La trazabilidad del activo deja de ser una ventaja para convertirse en un requisito legal de mercado.</p>
+        <div class="fbadge">▸ CPR · EPBD · CBAM · TAXONOMÍA</div>
+      </div>
+      <div class="force rv rv-d2">
+        <div class="fnum">02</div>
+        <h3>Escasez de mano de obra</h3>
+        <p>Cientos de miles de vacantes sin cubrir en Europa y una generación que se jubila. La industrialización digital deja de ser una elección y se vuelve necesidad operativa.</p>
+        <div class="fbadge">▸ INDUSTRIALIZACIÓN FORZADA</div>
+      </div>
+      <div class="force rv rv-d3">
+        <div class="fnum">03</div>
+        <h3>Déficit de vivienda</h3>
+        <p>Un déficit estructural de millones de viviendas en la UE y planes públicos masivos buscando capacidad industrial capaz de producir con trazabilidad y rapidez.</p>
+        <div class="fbadge">▸ DEMANDA SOSTENIDA</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 07 · PIPELINE ===================== -->
+<section id="pipeline" class="ink">
+  <div class="plan-grid-local"></div>
+  <div class="wrap">
+    <div class="sec-tag rv"><span class="code">[07]</span><span>PIPELINE REAL</span><span class="ln"></span></div>
+    <div class="kicker rv">Tracción medible, no diapositivas.</div>
+    <h2 class="rv rv-d1">La red ya<br>se está <span class="bl">tejiendo.</span></h2>
+
+    <div class="pipe">
+      <div class="pipe-card rv rv-d1">
+        <div class="pc-code">[ 07.A ] FABRICACIÓN</div>
+        <h3>Capacidad industrial</h3>
+        <p>OADAC opera como primer licenciatario de fabricación y montaje. A su capacidad se suma un gran nodo industrial con cientos de miles de m²/año, que se incorpora a la red de forma escalonada.</p>
+        <div class="pc-list"><span class="chip">LICENCIATARIO 01 · OADAC</span><span class="chip">CAPACIDAD 600.000 m²/AÑO</span><span class="chip">RED NACIONAL EN EXPANSIÓN</span></div>
+      </div>
+      <div class="pipe-card rv rv-d2">
+        <div class="pc-code">[ 07.B ] INFRAESTRUCTURA</div>
+        <h3>iPath · ciudades</h3>
+        <p>Superada la fase de interés, en definición de proyectos con ayuntamientos del Baix Camp, Hospitalet, zona de Valencia y municipios afectados por la DANA. Conversaciones abiertas con más capitales.</p>
+        <div class="pc-list"><span class="chip">TARRAGONA</span><span class="chip">VALENCIA</span><span class="chip">HOSPITALET</span><span class="chip">+ CARTERA NACIONAL</span></div>
+      </div>
+      <div class="pipe-card rv rv-d3">
+        <div class="pc-code">[ 07.C ] OBRA IN SITU</div>
+        <h3>Moolde · encofrados</h3>
+        <p>Implementador exclusivo del segmento de obra in situ. Prototipo en julio de 2026 con Calaf. Objetivo: incorporar a un gran actor del sector para el escalado del producto.</p>
+        <div class="pc-list"><span class="chip">PILOTO JULIO·26</span><span class="chip">GEMELO DESDE CIMENTACIÓN</span><span class="chip">CUEVA 25%</span></div>
+      </div>
+      <div class="pipe-card rv rv-d4">
+        <div class="pc-code">[ 07.D ] EXPANSIÓN</div>
+        <h3>Marketplace + sectores</h3>
+        <p>Marketplace prototipado y listo para producción, con un catálogo amplio de modelos. La puerta de comunicación abre además la implantación del OS en otros sectores industriales.</p>
+        <div class="pc-list"><span class="chip">MARKETPLACE LISTO</span><span class="chip">SECTOR ELÉCTRICO</span><span class="chip">SECTOR CERÁMICO</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 08 · GRÁFICA RED ===================== -->
+<section id="red" class="paper">
+  <div class="wrap">
+    <div class="sec-tag rv"><span class="code">[08]</span><span>CRECIMIENTO DE LA RED</span><span class="ln"></span></div>
+    <div class="graph-block">
+      <div class="rv">
+        <div class="kicker">El motor compuesto</div>
+        <h2 style="font-size:clamp(26px,3.2vw,42px)">Cada activo<br>queda en la <span class="am">red.</span></h2>
+        <p class="lead" style="font-size:16px">Los m² emitidos no desaparecen: se acumulan. Cada activo en la red sigue generando servicios, cómputo y transacciones. El stock acumulado es el verdadero indicador de valor del proyecto.</p>
+        <div class="cota"><span class="tick"></span><span class="bar"></span><span class="val">OBJETIVO BP · STOCK ACUMULADO</span><span class="bar"></span><span class="tick"></span></div>
+      </div>
+      <svg class="graph-svg rv rv-d2" viewBox="0 0 560 340" id="netGraph">
+        <!-- grid -->
+        <g stroke="rgba(22,20,14,.1)" stroke-width="1">
+          <line x1="60" y1="60" x2="530" y2="60"/>
+          <line x1="60" y1="130" x2="530" y2="130"/>
+          <line x1="60" y1="200" x2="530" y2="200"/>
+          <line x1="60" y1="270" x2="530" y2="270"/>
+        </g>
+        <!-- y labels -->
+        <text x="52" y="64" text-anchor="end" font-family="'Space Mono',monospace" font-size="10" fill="#6E6A58">1,6 M</text>
+        <text x="52" y="134" text-anchor="end" font-family="'Space Mono',monospace" font-size="10" fill="#6E6A58">1,2 M</text>
+        <text x="52" y="204" text-anchor="end" font-family="'Space Mono',monospace" font-size="10" fill="#6E6A58">800 K</text>
+        <text x="52" y="274" text-anchor="end" font-family="'Space Mono',monospace" font-size="10" fill="#6E6A58">0</text>
+        <!-- área de stock -->
+        <path id="areaPath" d="M90,270 L226,257 L362,135 L498,42 L498,270 Z" fill="#DC5212" opacity="0.12"/>
+        <!-- línea de stock -->
+        <polyline id="linePath" points="90,270 226,257 362,135 498,42" fill="none"
+          stroke="#DC5212" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/>
+        <!-- barras m² anuales -->
+        <g>
+          <rect x="74" y="258" width="32" height="12" fill="#15568C" opacity="0.55"/>
+          <rect x="210" y="234" width="32" height="36" fill="#15568C" opacity="0.55"/>
+          <rect x="346" y="190" width="32" height="80" fill="#15568C" opacity="0.55"/>
+          <rect x="482" y="128" width="32" height="142" fill="#15568C" opacity="0.7"/>
+        </g>
+        <!-- puntos -->
+        <circle cx="90" cy="270" r="5" fill="#DC5212"/><circle cx="226" cy="257" r="5" fill="#DC5212"/>
+        <circle cx="362" cy="135" r="5" fill="#DC5212"/><circle cx="498" cy="42" r="7" fill="#DC5212"/>
+        <!-- valores -->
+        <text x="90" y="255" text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" font-weight="700" fill="#DC5212">75 K</text>
+        <text x="226" y="244" text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" font-weight="700" fill="#DC5212">295 K</text>
+        <text x="362" y="122" text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" font-weight="700" fill="#DC5212">775 K</text>
+        <text x="498" y="30" text-anchor="middle" font-family="'Space Mono',monospace" font-size="12" font-weight="700" fill="#DC5212">1,6 M m²</text>
+        <!-- x labels -->
+        <text x="90" y="292" text-anchor="middle" font-family="'Space Mono',monospace" font-size="11" fill="#16140E">2026</text>
+        <text x="226" y="292" text-anchor="middle" font-family="'Space Mono',monospace" font-size="11" fill="#16140E">2027</text>
+        <text x="362" y="292" text-anchor="middle" font-family="'Space Mono',monospace" font-size="11" fill="#16140E">2028</text>
+        <text x="498" y="292" text-anchor="middle" font-family="'Space Mono',monospace" font-size="11" font-weight="700" fill="#16140E">2029</text>
+        <!-- leyenda -->
+        <g transform="translate(60,316)">
+          <rect width="11" height="11" fill="#15568C" opacity="0.6"/>
+          <text x="17" y="10" font-family="'Space Mono',monospace" font-size="10" fill="#6E6A58">m² emitidos / año</text>
+          <line x1="170" y1="6" x2="190" y2="6" stroke="#DC5212" stroke-width="3.5"/>
+          <text x="198" y="10" font-family="'Space Mono',monospace" font-size="10" fill="#6E6A58">stock acumulado en la red</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 09 · MACRO / VISIÓN ===================== -->
+<section id="macro" class="ink">
+  <div class="plan-grid-local"></div>
+  <div class="wrap">
+    <div class="sec-tag rv"><span class="code">[09]</span><span>EL OBJETIVO MACRO</span><span class="ln"></span></div>
+    <div class="kicker rv">Más allá de construir.</div>
+    <h2 class="rv rv-d1">Una red que<br><span class="bl">computa, gobierna<br>y se expande.</span></h2>
+    <p class="lead rv rv-d2">A medida que se instalan los activos, nace una red distribuida. Cada edificio es un nodo. Cada nodo aporta cómputo, almacenamiento y capacidad de gobernanza — y abre el camino a la salida internacional.</p>
+
+    <div class="macro-grid">
+      <div class="macro-cell rv rv-d1">
+        <div class="mc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#FF6B1F" stroke-width="1.8"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></div>
+        <h3>Red distribuida</h3>
+        <p>Cómputo y almacenamiento sobre la red de neuronas. CUEVA reserva el 25%; el propietario dispone del 75% restante y puede cederlo — como una placa solar de datos.</p>
+      </div>
+      <div class="macro-cell rv rv-d2">
+        <div class="mc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#FF6B1F" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4M5 5l3 3M16 16l3 3M19 5l-3 3M8 16l-3 3"/></svg></div>
+        <h3>IA y robótica</h3>
+        <p>Modelos de IA corriendo en local sobre la red, navegación de robots a través del gemelo digital, latencias mínimas y propiedad real del dato. Eficiencia compuesta.</p>
+      </div>
+      <div class="macro-cell rv rv-d3">
+        <div class="mc-ic"><svg viewBox="0 0 24 24" fill="none" stroke="#FF6B1F" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M2 12h20M12 3a15 15 0 0 1 0 18M12 3a15 15 0 0 0 0 18"/></svg></div>
+        <h3>Salida internacional</h3>
+        <p>Consolidada la base nacional, el producto está preparado para replicarse en otros mercados. La red no tiene fronteras técnicas — solo el orden de despliegue.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== 10 · VALOR ===================== -->
+<section id="valor" class="paper">
+  <div class="wrap">
+    <div class="sec-tag rv"><span class="code">[10]</span><span>VALOR DEL PROYECTO</span><span class="ln"></span></div>
+    <div class="kicker rv">Con los objetivos del plan cumplidos.</div>
+    <h2 class="rv rv-d1">El valor está<br>en la <span class="am">red construida.</span></h2>
+    <p class="lead rv rv-d2">No medimos el valor por lo que se factura un año, sino por los activos vivos en la red, su ingreso recurrente y la posición de estándar. Cada año la red es más grande, más densa y más difícil de replicar.</p>
+
+    <div class="val-grid">
+      <div class="val-card rv rv-d1">
+        <div class="vc-y">// 2026</div>
+        <div class="vc-n" data-count="75" data-suffix=" K">0</div>
+        <div class="vc-l">m² de activo en la red</div>
+      </div>
+      <div class="val-card rv rv-d2">
+        <div class="vc-y">// 2027</div>
+        <div class="vc-n" data-count="295" data-suffix=" K">0</div>
+        <div class="vc-l">m² de activo en la red</div>
+      </div>
+      <div class="val-card rv rv-d3">
+        <div class="vc-y">// 2028</div>
+        <div class="vc-n" data-count="775" data-suffix=" K">0</div>
+        <div class="vc-l">m² de activo en la red</div>
+      </div>
+      <div class="val-card hot rv rv-d4">
+        <div class="vc-y">// 2029</div>
+        <div class="vc-n" data-count="1.6" data-suffix=" M">0</div>
+        <div class="vc-l">m² de activo en la red</div>
+      </div>
+    </div>
+    <p class="lead rv rv-d4" style="margin-top:32px;font-size:15px;color:var(--ink-3)">
+      Sobre ese stock operan las siete capas de ingreso. El proyecto se valora como infraestructura — por la red, el dato y el estándar — y queda preparado para su salida internacional.
+    </p>
+  </div>
+</section>
+
+<!-- ===================== 11 · CIERRE ===================== -->
+<section id="cierre">
+  <div class="wrap" style="display:flex;flex-direction:column;align-items:center">
+    <div class="kicker rv" style="color:var(--ink-2)">[11] · SIGUIENTE PASO</div>
+    <h2 class="rv rv-d1">Construyamos el<br>estándar de un<br>sector entero.</h2>
+    <p class="cl-sub rv rv-d2">CUEVA no es una empresa de construcción. Es la capa sobre la que la construcción se vuelve digital, trazable y gobernable. La base está terminada. La red ya se teje. Es el momento de escalarla.</p>
+    <div class="cl-foot rv rv-d3">CUEVA · SISTEMA OPERATIVO DE LA CONSTRUCCIÓN · DOSSIER REV. 3.0 · MAYO 2026 · CONFIDENCIAL</div>
+  </div>
+</section>
+
+<footer>CUEVA OS · ACTIVO DIGITAL CON COLATERAL FÍSICO · DOCUMENTO DE TRABAJO INTERNO</footer>
+
+<script>
+/* ---------- boot ---------- */
+(function(){
+  const boot=document.getElementById('boot');
+  const lines=[...document.querySelectorAll('#boot .bline')];
+  lines.forEach((l,i)=>setTimeout(()=>l.classList.add('in'),260+i*330));
+  setTimeout(()=>boot.classList.add('done'),2900);
+  setTimeout(()=>{boot.style.display='none'},3700);
+})();
+
+/* ---------- scroll reveal ---------- */
+const io=new IntersectionObserver((es)=>{
+  es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('show');io.unobserve(e.target);}});
+},{threshold:.14,rootMargin:'0px 0px -60px 0px'});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+
+/* ---------- counters ---------- */
+const cio=new IntersectionObserver((es)=>{
+  es.forEach(e=>{
+    if(!e.isIntersecting)return;
+    const el=e.target;
+    const raw=el.dataset.count;
+    const target=parseFloat(raw);
+    const decimals=(raw.split('.')[1]||'').length;
+    const pre=el.dataset.prefix||'';
+    const suf=el.dataset.suffix||'';
+    const t0=performance.now(),dur=1700;
+    function tick(now){
+      const t=Math.min((now-t0)/dur,1);
+      const e2=1-Math.pow(1-t,3);
+      const v=target*e2;
+      el.textContent=pre+(decimals?v.toFixed(decimals).replace('.',','):Math.round(v).toLocaleString('es-ES'))+suf;
+      if(t<1)requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
+    cio.unobserve(el);
+  });
+},{threshold:.5});
+document.querySelectorAll('[data-count]').forEach(el=>cio.observe(el));
+
+/* ---------- graph draw-in ---------- */
+const gio=new IntersectionObserver((es)=>{
+  es.forEach(e=>{
+    if(!e.isIntersecting)return;
+    const line=document.getElementById('linePath');
+    const area=document.getElementById('areaPath');
+    if(line){
+      const len=line.getTotalLength();
+      line.style.strokeDasharray=len;line.style.strokeDashoffset=len;
+      line.style.transition='stroke-dashoffset 2s cubic-bezier(.16,1,.3,1)';
+      requestAnimationFrame(()=>{line.style.strokeDashoffset=0;});
+    }
+    if(area){area.style.opacity=0;area.style.transition='opacity 1.6s ease .6s';
+      requestAnimationFrame(()=>{area.style.opacity=.12;});}
+    gio.unobserve(e.target);
+  });
+},{threshold:.4});
+const ng=document.getElementById('netGraph');if(ng)gio.observe(ng);
+
+/* ---------- nav smooth + active ---------- */
+document.querySelectorAll('nav a').forEach(a=>{
+  a.addEventListener('click',ev=>{
+    const t=document.querySelector(a.getAttribute('href'));
+    if(t){ev.preventDefault();t.scrollIntoView({behavior:'smooth'});}
+  });
+});
+</script>
+</body>
+</html>
