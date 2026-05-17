@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CUEVA · Dossier BP 3 años (2026-2029)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Expanded:wght@600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--concrete:#E9E5DA;--concrete-2:#DDD8C9;--paper:#F4F1E7;--ink:#16140E;--ink-2:#3D3A2E;--ink-3:#6E6A58;
+  --amber:#DC5212;--amber-hi:#FF6B1F;--blue:#15568C;--blue-hi:#2E86DE;--line:rgba(22,20,14,.16);--line-soft:rgba(22,20,14,.08)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Archivo',sans-serif;background:var(--ink);color:var(--concrete);-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.5}
+::selection{background:var(--amber);color:var(--paper)}
+.mono{font-family:'Space Mono',monospace}
+h1,h2,h3{font-family:'Archivo Expanded','Archivo',sans-serif;font-weight:800;letter-spacing:-.015em;line-height:1.03}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.5;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")}
+.gridbg{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:50px 50px}
+#boot{position:fixed;inset:0;z-index:9999;background:var(--ink);display:flex;flex-direction:column;justify-content:center;padding:0 8vw;transition:opacity .6s,transform .9s cubic-bezier(.7,0,.2,1)}
+#boot.done{opacity:0;transform:scale(1.08);pointer-events:none}
+#boot .bk{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;color:var(--amber-hi);margin-bottom:28px}
+#boot .bl{font-family:'Space Mono',monospace;font-size:13px;color:#807c6a;margin:5px 0;opacity:0}
+#boot .bl.in{opacity:1}#boot .bl .ok{color:#9bbf5a;float:right}
+#boot .bb{margin-top:28px;height:2px;background:rgba(255,255,255,.1);width:min(540px,80vw);overflow:hidden}
+#boot .bb::after{content:"";display:block;height:100%;width:0;background:var(--amber);animation:bf 2.4s cubic-bezier(.6,0,.3,1) forwards}
+@keyframes bf{to{width:100%}}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;
+  padding:16px 32px;background:rgba(22,20,14,.8);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.08)}
+nav .logo{font-family:'Archivo Expanded';font-weight:900;font-size:20px;letter-spacing:.04em}nav .logo b{color:var(--amber-hi)}
+nav .ntag{font-family:'Space Mono',monospace;font-size:11px;color:#807c6a;letter-spacing:.1em}
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:140px 32px 80px;position:relative;z-index:2}
+.wrap{max-width:1280px;margin:0 auto;width:100%}
+.hc{position:absolute;font-family:'Space Mono',monospace;font-size:11px;color:#56523f;letter-spacing:.12em}
+.hey{display:inline-flex;align-items:center;gap:11px;border:1px solid rgba(255,255,255,.2);padding:9px 16px;
+  font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--amber-hi);margin-bottom:40px}
+.hey .dot{width:7px;height:7px;background:var(--amber);border-radius:50%;animation:bk 1.6s infinite}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.25}}
+#hero h1{font-size:clamp(54px,12vw,170px);text-transform:uppercase;line-height:.86;letter-spacing:-.03em}
+#hero h1 .l{display:block;overflow:hidden}
+#hero h1 .l span{display:block;transform:translateY(110%);animation:rise 1.05s cubic-bezier(.16,1,.3,1) forwards}
+#hero h1 .l:nth-child(2) span{animation-delay:.13s}
+@keyframes rise{to{transform:none}}
+#hero h1 .am{color:var(--amber)}#hero h1 .out{-webkit-text-stroke:2.5px var(--concrete);color:transparent}
+.htag{margin-top:38px;font-size:clamp(17px,2.2vw,26px);max-width:860px;color:#c8c4b4;font-weight:500;opacity:0;animation:fd 1s ease .8s forwards}
+.htag b{color:var(--concrete);font-weight:700}
+@keyframes fd{to{opacity:1}}
+.hfoot{margin-top:58px;display:flex;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.16);opacity:0;animation:fd 1s ease 1.1s forwards}
+.hfoot .hf{padding:22px 30px 22px 0;border-right:1px solid rgba(255,255,255,.1)}.hfoot .hf:last-child{border-right:0}
+.hfoot .hfv{font-family:'Archivo Expanded';font-weight:900;font-size:clamp(22px,2.5vw,32px);color:var(--amber-hi)}
+.hfoot .hfl{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;color:#807c6a;margin-top:5px}
+.scue{position:absolute;bottom:28px;left:50%;transform:translateX(-50%);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.22em;color:#56523f;display:flex;flex-direction:column;align-items:center;gap:9px}
+.scue .arw{width:1px;height:36px;background:linear-gradient(var(--amber),transparent);animation:cue 1.8s infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.rv{opacity:0;transform:translateY(36px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+.rv.show{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.2s}.d3{transition-delay:.3s}.d4{transition-delay:.4s}
+section{position:relative;z-index:2;padding:110px 32px}
+.tag{display:flex;align-items:baseline;gap:14px;margin-bottom:40px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;color:var(--amber-hi)}
+.tag .c{font-weight:700}.tag .ln{flex:1;height:1px;background:currentColor;opacity:.35}
+.qe{display:grid;grid-template-columns:1.1fr .9fr;gap:60px;align-items:center}
+.qe h2{font-size:clamp(30px,4vw,52px);text-transform:uppercase}.qe h2 .am{color:var(--amber)}
+.qe p{margin-top:24px;font-size:16px;color:#c8c4b4;line-height:1.65}.qe p b{color:var(--concrete)}
+.qev{aspect-ratio:1/1;border:1px solid rgba(255,255,255,.16);position:relative;background:repeating-linear-gradient(45deg,transparent,transparent 24px,rgba(255,255,255,.03) 24px,rgba(255,255,255,.03) 25px)}
+.qev .cr{position:absolute;width:14px;height:14px;border:2px solid var(--amber)}
+.qev .cr.tl{top:-1px;left:-1px;border-right:0;border-bottom:0}.qev .cr.tr{top:-1px;right:-1px;border-left:0;border-bottom:0}
+.qev .cr.bl{bottom:-1px;left:-1px;border-right:0;border-top:0}.qev .cr.br{bottom:-1px;right:-1px;border-left:0;border-top:0}
+.figs{display:grid;grid-template-columns:repeat(4,1fr);margin-top:80px;border:1px solid rgba(255,255,255,.16)}
+.fig{padding:34px 28px;border-right:1px solid rgba(255,255,255,.1)}.fig:last-child{border-right:0}
+.fig .fv{font-family:'Archivo Expanded';font-weight:900;font-size:clamp(28px,3.4vw,48px);color:var(--amber-hi)}
+.fig .fl{font-family:'Space Mono',monospace;font-size:11px;color:#807c6a;margin-top:8px;letter-spacing:.05em}
+#docs{background:var(--concrete);color:var(--ink)}
+#docs .gl{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(var(--line-soft) 1px,transparent 1px),linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);background-size:46px 46px}
+#docs .tag{color:var(--amber)}
+#docs h2{font-size:clamp(34px,5vw,66px);text-transform:uppercase}#docs h2 .am{color:var(--amber)}
+.dg{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:50px}
+.doc{position:relative;background:var(--paper);border:1px solid var(--line);text-decoration:none;color:var(--ink);
+  display:flex;flex-direction:column;min-height:430px;overflow:hidden;transition:transform .4s cubic-bezier(.16,1,.3,1),box-shadow .4s}
+.doc:hover{transform:translateY(-10px);box-shadow:0 30px 60px rgba(22,20,14,.25)}
+.doc .dv{height:175px;position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.doc .dv svg{width:100%;height:100%;display:block}
+.doc .db{padding:24px 26px;display:flex;flex-direction:column;flex:1}
+.doc .dno{font-family:'Space Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.1em}
+.doc h3{font-size:23px;text-transform:uppercase;margin:11px 0 9px}
+.doc p{font-size:13px;color:var(--ink-2);flex:1;line-height:1.6}
+.doc .dm{margin-top:14px;display:flex;flex-wrap:wrap;gap:6px}
+.doc .dm span{font-family:'Space Mono',monospace;font-size:9.5px;border:1px solid var(--line);padding:4px 8px;color:var(--ink-3)}
+.doc .dgo{margin-top:16px;display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--line);
+  font-family:'Space Mono',monospace;font-size:12px;font-weight:700;color:var(--amber);letter-spacing:.06em}
+.doc .dgo .ar{font-size:20px;transition:transform .3s}.doc:hover .dgo .ar{transform:translateX(8px)}
+.doc .dtag{position:absolute;top:14px;right:14px;z-index:3;font-family:'Space Mono',monospace;font-size:9.5px;background:var(--ink);color:var(--paper);padding:4px 9px;letter-spacing:.06em}
+.xnote{margin-top:46px;border:1px dashed var(--line);padding:24px 28px;display:flex;gap:20px;align-items:center;flex-wrap:wrap}
+.xnote .xi{width:46px;height:46px;border:1px solid var(--amber);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.xnote p{font-size:13px;color:var(--ink-2);font-family:'Space Mono',monospace;line-height:1.6}.xnote p b{color:var(--ink)}
+footer{position:relative;z-index:2;background:var(--ink);color:#807c6a;padding:50px 32px;text-align:center}
+footer .fb{font-family:'Archivo Expanded';font-weight:900;font-size:clamp(28px,5vw,58px);text-transform:uppercase;color:var(--concrete)}
+footer .fb b{color:var(--amber)}
+footer .fl{margin-top:18px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.12em}
+@media(max-width:980px){section{padding:80px 20px}.qe{grid-template-columns:1fr;gap:34px}.figs{grid-template-columns:1fr 1fr}
+  .fig:nth-child(2){border-right:0}.dg{grid-template-columns:1fr}.hfoot .hf{padding:18px 20px 18px 0}}
+@media print{#boot,nav,.scue,.grain{display:none}section{page-break-after:always}}
+</style>
+</head>
+<body>
+<div class="gridbg"></div><div class="grain"></div>
+<div id="boot">
+  <div class="bk">// CUEVA OS · DOSSIER BP 3 AÑOS</div>
+  <div class="bl" data-i="0">cargando plan 2026-2029<span class="ok">OK</span></div>
+  <div class="bl" data-i="1">documento 01 · presentación del proyecto<span class="ok">OK</span></div>
+  <div class="bl" data-i="2">documento 02 · exposición del modelo<span class="ok">OK</span></div>
+  <div class="bl" data-i="3">documento 03 · el plan a 3 años<span class="ok">OK</span></div>
+  <div class="bl" data-i="4">escenario base del proyecto<span class="ok">LISTO</span></div>
+  <div class="bb"></div>
+</div>
+<nav><div class="logo">CUE<b>V</b>A</div><div class="ntag">DOSSIER · BP 3 AÑOS · 2026-2029</div></nav>
+
+<section id="hero">
+  <span class="hc" style="top:120px;right:32px">PLAN 2026-2029</span>
+  <span class="hc" style="bottom:96px;right:32px">ESCENARIO BASE · 3 AÑOS</span>
+  <div class="wrap">
+    <div class="hey"><span class="dot"></span>DOSSIER DE PROYECTO · BP 3 AÑOS</div>
+    <h1><span class="l"><span>CUE<span class="am">V</span>A</span></span><span class="l"><span class="out">3 años</span></span></h1>
+    <p class="htag">El sistema operativo de la construcción. El <b>escenario base y comprometible</b> del proyecto a 3 años: 2026 de salida a mercado, plan pleno 2027-2029. Tres documentos para entender el modelo completo.</p>
+    <div class="hfoot">
+      <div class="hf"><div class="hfv" data-c="14" data-s=" €">0</div><div class="hfl">ROYALTY POR m² DE ACTIVO</div></div>
+      <div class="hf"><div class="hfv" data-c="33" data-p="€" data-s="M">0</div><div class="hfl">INGRESOS 2029</div></div>
+      <div class="hf"><div class="hfv" data-c="1.5" data-s="M m²">0</div><div class="hfl">ACTIVO EN RED 2029</div></div>
+      <div class="hf"><div class="hfv" data-c="225" data-p="€" data-s="M">0</div><div class="hfl">VALOR DEL PROYECTO 2029</div></div>
+    </div>
+  </div>
+  <div class="scue"><span>EXPLORAR DOSSIER</span><span class="arw"></span></div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="tag rv"><span class="c">[ 00 ]</span><span>EL PROYECTO EN UNA IDEA</span><span class="ln"></span></div>
+    <div class="qe">
+      <div>
+        <h2 class="rv d1">No construimos cosas.<br><span class="am">Emitimos activos.</span></h2>
+        <p class="rv d2">CUEVA es el <b>sistema operativo de la construcción</b>: una red donde fabricantes, montadores, arquitectos, promotores, administraciones y el cliente final operan sobre la misma capa digital. Cada elemento físico nace con un gemelo digital vinculado — <b>si no está en el sistema, no existe.</b></p>
+        <p class="rv d3">Este dossier es la <b>foto a 3 años</b>: 2026 dedicado a salir a mercado (cierre de herramientas, beta con arquitectos, contratos de ayuntamientos, salida de la blockchain) y un plan pleno 2027-2029 que lleva el proyecto a €33M de ingresos y ~€225M de valor.</p>
+      </div>
+      <div class="qev rv d2">
+        <span class="cr tl"></span><span class="cr tr"></span><span class="cr bl"></span><span class="cr br"></span>
+        <svg viewBox="0 0 380 380">
+          <polygon points="110,80 200,40 290,80 200,120" fill="none" stroke="#2E86DE" stroke-width="1.6"/>
+          <polygon points="110,80 200,120 200,150 110,110" fill="none" stroke="#2E86DE" stroke-width="1.6"/>
+          <polygon points="290,80 200,120 200,150 290,110" fill="none" stroke="#2E86DE" stroke-width="1.6"/>
+          <circle cx="110" cy="80" r="3.5" fill="#2E86DE"/><circle cx="200" cy="40" r="3.5" fill="#2E86DE"/>
+          <circle cx="290" cy="80" r="3.5" fill="#2E86DE"/><circle cx="200" cy="120" r="3.5" fill="#2E86DE"/>
+          <text x="306" y="64" font-family="'Space Mono',monospace" font-size="11" fill="#2E86DE">DIGITAL</text>
+          <polygon points="110,230 200,185 290,230 200,275" fill="#DC5212"/>
+          <polygon points="110,230 200,275 200,340 110,295" fill="#A83D0C"/>
+          <polygon points="290,230 200,275 200,340 290,295" fill="#C04A10"/>
+          <circle cx="200" cy="230" r="9" fill="#16140E" stroke="#FF6B1F" stroke-width="2"/>
+          <circle cx="200" cy="230" r="9" fill="none" stroke="#FF6B1F" stroke-width="1.2">
+            <animate attributeName="r" values="9;30;9" dur="2.8s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.8;0;0.8" dur="2.8s" repeatCount="indefinite"/></circle>
+          <text x="306" y="244" font-family="'Space Mono',monospace" font-size="11" fill="#DC5212">FÍSICO</text>
+          <line x1="200" y1="150" x2="200" y2="221" stroke="#FF6B1F" stroke-width="2" stroke-dasharray="4 5">
+            <animate attributeName="stroke-dashoffset" values="18;0" dur="0.7s" repeatCount="indefinite"/></line>
+        </svg>
+      </div>
+    </div>
+    <div class="figs">
+      <div class="fig rv d1"><div class="fv" data-c="13">0</div><div class="fl">LICENCIATARIOS EN LA RED · 2029</div></div>
+      <div class="fig rv d2"><div class="fv" data-c="196" data-s="%">0</div><div class="fl">CAGR DE INGRESOS 2026-2029</div></div>
+      <div class="fig rv d3"><div class="fv" data-c="39" data-s="%">0</div><div class="fl">MARGEN EBITDA EN 2029</div></div>
+      <div class="fig rv d4"><div class="fv">2028</div><div class="fl">AÑO DE BREAK-EVEN</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="docs">
+  <div class="gl"></div>
+  <div class="wrap" style="position:relative;z-index:2">
+    <div class="tag rv"><span class="c">[ ·· ]</span><span>EL DOSSIER · TRES DOCUMENTOS</span><span class="ln"></span></div>
+    <h2 class="rv d1">Explora el<br><span class="am">proyecto completo.</span></h2>
+    <div class="dg">
+      <a class="doc rv d1" href="CUEVA_PRESENTACION.html">
+        <span class="dtag">12 SECCIONES</span>
+        <div class="dv"><svg viewBox="0 0 380 175" preserveAspectRatio="xMidYMid slice">
+          <rect width="380" height="175" fill="#16140E"/>
+          <g stroke="rgba(255,255,255,.06)" stroke-width="1"><line x1="0" y1="44" x2="380" y2="44"/><line x1="0" y1="88" x2="380" y2="88"/><line x1="0" y1="132" x2="380" y2="132"/><line x1="95" y1="0" x2="95" y2="175"/><line x1="190" y1="0" x2="190" y2="175"/><line x1="285" y1="0" x2="285" y2="175"/></g>
+          <text x="28" y="58" font-family="'Archivo Expanded',sans-serif" font-weight="900" font-size="32" fill="#F4F1E7">EL</text>
+          <text x="28" y="96" font-family="'Archivo Expanded',sans-serif" font-weight="900" font-size="32" fill="#DC5212">PROYECTO</text>
+          <text x="28" y="140" font-family="'Space Mono',monospace" font-size="11" fill="#807c6a">paradigma · activo · visión</text>
+        </svg></div>
+        <div class="db"><div class="dno">[ 01 ] · PRESENTACIÓN</div><h3>El proyecto</h3>
+          <p>El cambio de paradigma, el activo digital con colateral físico, el producto ya terminado, las líneas de negocio y la visión de la red.</p>
+          <div class="dm"><span>PARADIGMA</span><span>EL ACTIVO</span><span>PRODUCTO</span><span>VISIÓN</span></div>
+          <div class="dgo"><span>ABRIR PRESENTACIÓN</span><span class="ar">→</span></div></div>
+      </a>
+      <a class="doc rv d2" href="CUEVA_EXPOSICION_MODELO.html">
+        <span class="dtag">MAPA INTERACTIVO</span>
+        <div class="dv"><svg viewBox="0 0 380 175" preserveAspectRatio="xMidYMid slice">
+          <rect width="380" height="175" fill="#16140E"/>
+          <g stroke="rgba(255,255,255,.06)" stroke-width="1"><line x1="0" y1="44" x2="380" y2="44"/><line x1="0" y1="88" x2="380" y2="88"/><line x1="0" y1="132" x2="380" y2="132"/><line x1="95" y1="0" x2="95" y2="175"/><line x1="190" y1="0" x2="190" y2="175"/><line x1="285" y1="0" x2="285" y2="175"/></g>
+          <text x="28" y="58" font-family="'Archivo Expanded',sans-serif" font-weight="900" font-size="32" fill="#F4F1E7">EL</text>
+          <text x="28" y="96" font-family="'Archivo Expanded',sans-serif" font-weight="900" font-size="32" fill="#2E86DE">MODELO</text>
+          <text x="28" y="140" font-family="'Space Mono',monospace" font-size="11" fill="#807c6a">ciclo · 7 capas · red</text>
+          <g transform="translate(305,52)"><circle r="19" fill="none" stroke="#2E86DE" stroke-width="1.4"/><circle r="4" fill="#FF6B1F"/>
+            <circle cx="19" cy="0" r="3" fill="#2E86DE"/><circle cx="-19" cy="0" r="3" fill="#2E86DE"/><circle cx="0" cy="19" r="3" fill="#2E86DE"/><circle cx="0" cy="-19" r="3" fill="#2E86DE"/></g>
+        </svg></div>
+        <div class="db"><div class="dno">[ 02 ] · EXPOSICIÓN</div><h3>Cómo funciona</h3>
+          <p>El ciclo del activo, las siete capas de ingreso en detalle, la red distribuida, los segmentos de cliente, el moat y el mapa del despliegue.</p>
+          <div class="dm"><span>CICLO</span><span>7 CAPAS</span><span>RED</span><span>MAPA</span></div>
+          <div class="dgo"><span>ABRIR EXPOSICIÓN</span><span class="ar">→</span></div></div>
+      </a>
+      <a class="doc rv d3" href="CUEVA_PLAN.html">
+        <span class="dtag">PLAN 2026-2029</span>
+        <div class="dv"><svg viewBox="0 0 380 175" preserveAspectRatio="xMidYMid slice">
+          <rect width="380" height="175" fill="#16140E"/>
+          <g stroke="rgba(255,255,255,.06)" stroke-width="1"><line x1="0" y1="44" x2="380" y2="44"/><line x1="0" y1="88" x2="380" y2="88"/><line x1="0" y1="132" x2="380" y2="132"/><line x1="95" y1="0" x2="95" y2="175"/><line x1="190" y1="0" x2="190" y2="175"/><line x1="285" y1="0" x2="285" y2="175"/></g>
+          <text x="28" y="58" font-family="'Archivo Expanded',sans-serif" font-weight="900" font-size="32" fill="#F4F1E7">EL</text>
+          <text x="28" y="96" font-family="'Archivo Expanded',sans-serif" font-weight="900" font-size="32" fill="#DC5212">PLAN</text>
+          <text x="28" y="140" font-family="'Space Mono',monospace" font-size="11" fill="#807c6a">finanzas · valor · 3 años</text>
+          <g transform="translate(250,138)"><rect x="0" y="-12" width="13" height="12" fill="#DC5212"/><rect x="20" y="-26" width="13" height="26" fill="#DC5212"/>
+            <rect x="40" y="-44" width="13" height="44" fill="#FF6B1F"/><rect x="60" y="-74" width="13" height="74" fill="#FF6B1F"/></g>
+        </svg></div>
+        <div class="db"><div class="dno">[ 03 ] · EL PLAN</div><h3>El financiero</h3>
+          <p>2026 año de salida, la red de licenciatarios, la cuenta de resultados 2027-2029, los modelos disruptivos y el valor del proyecto.</p>
+          <div class="dm"><span>2026 SALIDA</span><span>LA RED</span><span>P&L</span><span>VALOR</span></div>
+          <div class="dgo"><span>ABRIR EL PLAN</span><span class="ar">→</span></div></div>
+      </a>
+    </div>
+    <div class="xnote rv">
+      <div class="xi"><svg viewBox="0 0 24 24" fill="none" stroke="#DC5212" stroke-width="1.8"><path d="M4 4h16v16H4zM4 9h16M9 9v11"/></svg></div>
+      <p>Este es el dossier del <b>BP a 3 años</b> — El escenario base del proyecto. Existe un dossier paralelo, el <b>BP a 5 años</b>, con el horizonte 2026-2031 y el objetivo de generar el unicornio. Ambos comparten el mismo modelo; divergen en horizonte y ambición.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fb">CUE<b>V</b>A</div>
+  <div class="fl">SISTEMA OPERATIVO DE LA CONSTRUCCIÓN · DOSSIER BP 3 AÑOS · MAYO 2026 · CONFIDENCIAL</div>
+</footer>
+<script>
+(function(){const b=document.getElementById('boot');
+  document.querySelectorAll('#boot .bl').forEach((l,i)=>setTimeout(()=>l.classList.add('in'),300+i*330));
+  setTimeout(()=>b.classList.add('done'),2700);setTimeout(()=>{b.style.display='none';},3600);})();
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('show');io.unobserve(e.target);}});},{threshold:.14,rootMargin:'0px 0px -60px 0px'});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+const cio=new IntersectionObserver((es)=>{es.forEach(e=>{
+  if(!e.isIntersecting)return;const el=e.target,raw=el.dataset.c;if(!raw)return;
+  const t=parseFloat(raw),dec=(raw.split('.')[1]||'').length,p=el.dataset.p||'',s=el.dataset.s||'',t0=performance.now();
+  function tk(n){const x=Math.min((n-t0)/1800,1),e2=1-Math.pow(1-x,3),v=t*e2;
+    el.textContent=p+(dec?v.toFixed(dec).replace('.',','):Math.round(v))+s;if(x<1)requestAnimationFrame(tk);}
+  requestAnimationFrame(tk);cio.unobserve(el);});},{threshold:.5});
+document.querySelectorAll('[data-c]').forEach(el=>cio.observe(el));
+</script>
+</body>
+</html>

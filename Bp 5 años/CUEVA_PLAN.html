@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CUEVA · El Plan a 5 años (2026-2031) · Camino al unicornio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Expanded:wght@600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--concrete:#E9E5DA;--concrete-2:#DDD8C9;--paper:#F4F1E7;--ink:#16140E;--ink-2:#3D3A2E;--ink-3:#6E6A58;
+  --amber:#DC5212;--amber-hi:#FF6B1F;--blue:#15568C;--blue-hi:#2E86DE;--line:rgba(22,20,14,.16);--line-soft:rgba(22,20,14,.08)}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}
+body{font-family:'Archivo',sans-serif;background:var(--concrete);color:var(--ink);-webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.5}
+::selection{background:var(--amber);color:var(--paper)}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.4;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")}
+.pg{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:linear-gradient(var(--line-soft) 1px,transparent 1px),linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);background-size:46px 46px}
+.mono{font-family:'Space Mono',monospace}
+h1,h2,h3{font-family:'Archivo Expanded','Archivo',sans-serif;font-weight:800;letter-spacing:-.015em;line-height:1.04}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;
+  padding:14px 30px;background:rgba(233,229,218,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .logo{font-family:'Archivo Expanded';font-weight:900;font-size:19px;white-space:nowrap}nav .logo b{color:var(--amber)}
+nav .logo span{font-family:'Space Mono',monospace;font-size:11px;font-weight:400;color:var(--ink-3)}
+nav .nl{display:flex;gap:2px}
+nav a{font-family:'Space Mono',monospace;font-size:11px;text-decoration:none;color:var(--ink-2);padding:6px 9px;letter-spacing:.04em;transition:.2s}
+nav a:hover{background:var(--ink);color:var(--concrete)}
+nav .cta{background:var(--amber);color:var(--paper)!important}
+section{position:relative;z-index:2;padding:120px 30px;min-height:100vh;display:flex;flex-direction:column;justify-content:center}
+.wrap{max-width:1240px;margin:0 auto;width:100%}
+section.ink{background:var(--ink);color:var(--concrete)}section.paper{background:var(--paper)}
+.pgl{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:46px 46px}
+.tag{display:flex;align-items:baseline;gap:14px;margin-bottom:34px;font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.2em;color:var(--amber)}
+.tag .c{font-weight:700}.tag .ln{flex:1;height:1px;background:currentColor;opacity:.4}
+.ink .tag{color:var(--amber-hi)}
+.kick{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--ink-3);margin-bottom:18px}
+.ink .kick{color:#9b9684}
+h2{font-size:clamp(32px,4.6vw,58px);text-transform:uppercase}h2 .am{color:var(--amber)}h2 .bl{color:var(--blue)}
+.ink h2 .bl{color:var(--blue-hi)}
+.lead{font-size:clamp(16px,1.8vw,20px);max-width:800px;color:var(--ink-2);margin-top:22px;line-height:1.6}
+.ink .lead{color:#c8c4b4}
+.rv{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.16,1,.3,1),transform .9s cubic-bezier(.16,1,.3,1)}
+.rv.show{opacity:1;transform:none}
+.d1{transition-delay:.08s}.d2{transition-delay:.16s}.d3{transition-delay:.24s}.d4{transition-delay:.32s}
+#hero{background:var(--ink);color:var(--concrete);overflow:hidden;padding-top:150px}
+.hc{position:absolute;font-family:'Space Mono',monospace;font-size:11px;color:#56523f;letter-spacing:.1em}
+.hey{display:inline-flex;align-items:center;gap:10px;border:1px solid rgba(255,255,255,.2);padding:8px 14px;
+  font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.18em;color:var(--amber-hi);margin-bottom:36px}
+.hey .dot{width:7px;height:7px;background:var(--amber);border-radius:50%;animation:bk 1.6s infinite}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.25}}
+#hero h1{font-size:clamp(40px,7.5vw,104px);text-transform:uppercase;line-height:.95}
+#hero h1 .l{display:block;overflow:hidden}
+#hero h1 .l span{display:block;transform:translateY(110%);animation:rise 1s cubic-bezier(.16,1,.3,1) forwards}
+#hero h1 .l:nth-child(2) span{animation-delay:.12s}
+@keyframes rise{to{transform:none}}
+#hero h1 .am{color:var(--amber)}#hero h1 .out{-webkit-text-stroke:2px var(--concrete);color:transparent}
+.hsub{margin-top:32px;font-size:clamp(15px,1.9vw,21px);max-width:720px;color:#c8c4b4;opacity:0;animation:fd 1s ease .7s forwards}
+@keyframes fd{to{opacity:1}}
+.hmeta{margin-top:54px;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid rgba(255,255,255,.18);opacity:0;animation:fd 1s ease 1s forwards}
+.hmeta .m{padding:22px 22px 22px 0;border-right:1px solid rgba(255,255,255,.12)}.hmeta .m:last-child{border-right:0}
+.hmeta .mv{font-family:'Archivo Expanded';font-weight:900;font-size:clamp(22px,2.8vw,38px);color:var(--amber-hi)}
+.hmeta .ml{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.08em;color:#9b9684;margin-top:6px}
+.kstrip{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:44px}
+.kbox{border:1px solid var(--line);background:var(--paper);padding:24px 22px}
+.ink .kbox{background:rgba(255,255,255,.03);border-color:rgba(255,255,255,.16)}
+.kbox .kv{font-family:'Archivo Expanded';font-weight:900;font-size:clamp(22px,2.7vw,38px);color:var(--amber)}
+.kbox .kl{font-family:'Space Mono',monospace;font-size:11px;color:var(--ink-3);margin-top:6px}
+.ink .kbox .kl{color:#9b9684}
+.hitos{margin-top:40px;display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.hito{border:1px solid var(--line);background:var(--paper);padding:22px 20px;transition:.3s}
+.hito:hover{background:var(--ink);color:var(--concrete);transform:translateY(-5px)}
+.hito .hn{font-family:'Space Mono',monospace;font-size:10.5px;color:var(--amber)}
+.hito h3{font-size:15px;text-transform:uppercase;margin:11px 0 7px}
+.hito p{font-size:12px;color:var(--ink-2)}.hito:hover p{color:#c8c4b4}
+.tbl{width:100%;border-collapse:collapse;margin-top:40px;font-size:12px}
+.tbl th{background:var(--ink);color:var(--paper);font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.04em;padding:10px 10px;text-align:right;text-transform:uppercase}
+.tbl th:first-child{text-align:left}
+.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;font-variant-numeric:tabular-nums}
+.tbl td:first-child{text-align:left;font-weight:600}
+.tbl tr.tot td{background:var(--amber);color:var(--paper);font-weight:700}
+.tbl tr.sub td{background:var(--concrete-2);font-weight:700;font-family:'Space Mono',monospace;font-size:10px}
+.chart-card{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.03);padding:26px;margin-top:38px}
+.chart-card h3{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.08em;color:var(--amber-hi);text-transform:uppercase;margin-bottom:4px}
+.chart-card .cs{font-family:'Space Mono',monospace;font-size:11px;color:#9b9684;margin-bottom:16px}
+.disr-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:40px}
+.disr{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.03);padding:28px 26px;position:relative;overflow:hidden;transition:.3s}
+.disr:hover{transform:translateY(-5px);border-color:var(--amber)}
+.disr .dn{font-family:'Archivo Expanded';font-weight:900;font-size:52px;color:rgba(255,255,255,.06);position:absolute;top:8px;right:18px}
+.disr h3{font-size:17px;text-transform:uppercase;color:var(--concrete);margin-bottom:9px;position:relative}
+.disr p{font-size:12.5px;color:#9b9684;position:relative;line-height:1.6}
+.disr .dt{margin-top:12px;font-family:'Space Mono',monospace;font-size:10px;color:var(--amber-hi);position:relative}
+.stair{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:46px;align-items:end}
+.step{border:1px solid var(--line);background:var(--paper);padding:22px 18px;text-align:center;position:relative}
+.step.s1{height:140px}.step.s2{height:210px}.step.s3{height:280px}.step.s4{height:360px;background:var(--ink);border-color:var(--amber)}
+.step .sy{font-family:'Space Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.08em}
+.step .sv{font-family:'Archivo Expanded';font-weight:900;font-size:clamp(20px,2.6vw,36px);margin:10px 0 4px;color:var(--ink)}
+.step.s4 .sv{color:var(--amber-hi)}.step .sl{font-family:'Space Mono',monospace;font-size:10px;color:var(--ink-3)}
+.step.s4 .sl{color:#9b9684}.step.s4 .sy{color:var(--amber-hi)}
+.step .uni{position:absolute;top:-34px;left:50%;transform:translateX(-50%);font-size:30px}
+.levers{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-top:34px}
+.lever{border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.03);padding:22px 20px}
+.lever .lvn{font-family:'Space Mono',monospace;font-size:11px;color:var(--amber-hi)}
+.lever h4{font-size:14px;text-transform:uppercase;margin:10px 0 7px;color:var(--concrete)}
+.lever p{font-size:12px;color:#9b9684}
+.doclinks{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:44px}
+.doclink{border:1px solid var(--line);background:var(--paper);padding:26px;text-decoration:none;display:block;transition:.3s}
+.doclink:hover{background:var(--amber);transform:translateY(-5px)}
+.doclink .dn{font-family:'Space Mono',monospace;font-size:11px;color:var(--amber)}
+.doclink:hover .dn{color:var(--ink)}
+.doclink h3{font-size:18px;text-transform:uppercase;color:var(--ink);margin:10px 0 7px}
+.doclink:hover h3{color:var(--ink)}
+.doclink p{font-size:12px;color:var(--ink-2)}
+.doclink .go{margin-top:12px;font-family:'Space Mono',monospace;font-size:11px;color:var(--amber)}
+.doclink:hover .go{color:var(--ink)}
+footer{position:relative;z-index:2;background:var(--ink);color:#807c6a;padding:30px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.08em;text-align:center}
+@media(max-width:980px){nav .nl{display:none}section{padding:90px 20px}.hitos{grid-template-columns:1fr}.disr-grid{grid-template-columns:1fr}
+  .hmeta{grid-template-columns:1fr 1fr}.kstrip{grid-template-columns:1fr 1fr}.doclinks{grid-template-columns:1fr}.tbl{font-size:10px}
+  .stair{grid-template-columns:1fr 1fr}.step.s1,.step.s2,.step.s3,.step.s4{height:auto;min-height:140px}.levers{grid-template-columns:1fr}}
+@media print{nav,.grain{display:none}section{min-height:0;page-break-after:always}}
+</style>
+</head>
+<body>
+<div class="pg"></div><div class="grain"></div>
+<nav>
+  <div class="logo">CUE<b>V</b>A <span>// PLAN · 5 AÑOS</span></div>
+  <div class="nl">
+    <a href="#hero">00·INICIO</a><a href="#salida">01·2026</a><a href="#red">02·LA RED</a>
+    <a href="#pl">03·RESULTADOS</a><a href="#disr">04·DISRUPCIÓN</a><a href="#unicornio">05·UNICORNIO</a>
+    <a href="index.html" class="cta">↑ ÍNDICE</a>
+  </div>
+</nav>
+
+<section id="hero">
+  <div class="pgl"></div>
+  <span class="hc" style="top:124px;right:30px">BP 5 AÑOS · 2026-2031</span>
+  <span class="hc" style="bottom:120px;left:30px">OBJETIVO · GENERAR EL UNICORNIO</span>
+  <div class="wrap" style="position:relative;z-index:3">
+    <div class="hey"><span class="dot"></span>EL PLAN A 5 AÑOS · 2026-2031</div>
+    <h1><span class="l"><span>El camino</span></span><span class="l"><span class="out">al</span> <span class="am">unicornio</span></span></h1>
+    <p class="hsub">2026 de salida a mercado, plan pleno 2027-2031. Ejecutando las derivadas — red distribuida, pago por uso, mercado financiero, internacional — el proyecto cruza el umbral de los €1.000M en 2031.</p>
+    <div class="hmeta">
+      <div class="m"><div class="mv" data-c="142" data-p="€" data-s="M">0</div><div class="ml">INGRESOS 2031</div></div>
+      <div class="m"><div class="mv" data-c="51" data-s="%">0</div><div class="ml">EBITDA 2031</div></div>
+      <div class="m"><div class="mv" data-c="5.6" data-s="M m²">0</div><div class="ml">STOCK DE ACTIVO 2031</div></div>
+      <div class="m"><div class="mv" data-c="1175" data-p="€" data-s="M">0</div><div class="ml">VALOR PROYECTO 2031 🦄</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="salida" class="paper">
+  <div class="wrap">
+    <div class="tag rv"><span class="c">[01]</span><span>2026 · AÑO DE SALIDA A MERCADO</span><span class="ln"></span></div>
+    <div class="kick rv">El mismo arranque que el plan a 3 años.</div>
+    <h2 class="rv d1">Primero <span class="am">salir.</span><br>Luego, el unicornio.</h2>
+    <p class="lead rv d2">2026 se dedica a poner el proyecto en el mercado: cerrar el producto, validarlo con arquitectos, firmar contratos y arrancar la blockchain. Volumen ≤ 25.000 m². A partir de 2027, el plan a 5 años explota las derivadas para construir el unicornio.</p>
+    <div class="hitos">
+      <div class="hito rv d1"><div class="hn">[ 2026.1 ]</div><h3>Cierre de herramientas</h3><p>Designer y Manager en versión final. Fin del desarrollo del núcleo del OS.</p></div>
+      <div class="hito rv d2"><div class="hn">[ 2026.2 ]</div><h3>Beta con arquitectos</h3><p>Validación real del Designer con estudios técnicos.</p></div>
+      <div class="hito rv d3"><div class="hn">[ 2026.3 ]</div><h3>Contratos ayuntamientos</h3><p>Firma de los proyectos iPath con municipios.</p></div>
+      <div class="hito rv d1"><div class="hn">[ 2026.4 ]</div><h3>Salida de la blockchain</h3><p>Capa blockchain en producción en septiembre. Billetera funcional.</p></div>
+      <div class="hito rv d2"><div class="hn">[ 2026.5 ]</div><h3>Arranque de licenciatarios</h3><p>OADAC y la capacidad ancla en operación inicial. Volumen ≤ 25.000 m².</p></div>
+      <div class="hito rv d3"><div class="hn">[ 2026.6 ]</div><h3>Marketplace a producción</h3><p>Lanzamiento del marketplace con el catálogo de modelos.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="red" class="ink">
+  <div class="pgl"></div>
+  <div class="wrap">
+    <div class="tag rv"><span class="c">[02]</span><span>LA RED DE LICENCIATARIOS</span><span class="ln"></span></div>
+    <div class="kick rv">El motor del unicornio.</div>
+    <h2 class="rv d1">De 25.000 m²<br>a <span class="bl">2,4M de m²/año.</span></h2>
+    <table class="tbl rv d2">
+      <thead><tr><th>Fuente de m²</th><th>2026</th><th>2027</th><th>2028</th><th>2029</th><th>2030</th><th>2031</th></tr></thead>
+      <tbody>
+        <tr><td>Capacidad ancla</td><td>10.000</td><td>100.000</td><td>200.000</td><td>400.000</td><td>550.000</td><td>600.000</td></tr>
+        <tr><td>Gran licenciatario #2</td><td>—</td><td>—</td><td>100.000</td><td>200.000</td><td>400.000</td><td>550.000</td></tr>
+        <tr><td>Gran licenciatario #3</td><td>—</td><td>—</td><td>—</td><td>100.000</td><td>200.000</td><td>400.000</td></tr>
+        <tr><td>Grandes #4-5 (incl. internacional)</td><td>—</td><td>—</td><td>—</td><td>—</td><td>100.000</td><td>300.000</td></tr>
+        <tr><td>Licenciatarios OADAC-type</td><td>15.000</td><td>40.000</td><td>100.000</td><td>240.000</td><td>400.000</td><td>560.000</td></tr>
+        <tr class="tot"><td>TOTAL m² / AÑO</td><td>25.000</td><td>140.000</td><td>400.000</td><td>940.000</td><td>1.650.000</td><td>2.410.000</td></tr>
+        <tr class="sub"><td>STOCK ACUMULADO</td><td>25.000</td><td>165.000</td><td>565.000</td><td>1.505.000</td><td>3.155.000</td><td>5.565.000</td></tr>
+      </tbody>
+    </table>
+    <div class="chart-card rv d3">
+      <h3>Ingresos 2026-2031 · M EUR</h3>
+      <div class="cs">El salto exponencial — las derivadas se convierten en motor desde 2029</div>
+      <svg viewBox="0 0 560 250" id="rev">
+        <g stroke="rgba(255,255,255,.1)" stroke-width="1">
+          <line x1="55" y1="40" x2="540" y2="40"/><line x1="55" y1="110" x2="540" y2="110"/><line x1="55" y1="180" x2="540" y2="180"/>
+        </g>
+        <text x="48" y="44" text-anchor="end" font-family="'Space Mono',monospace" font-size="9" fill="#9b9684">150</text>
+        <text x="48" y="184" text-anchor="end" font-family="'Space Mono',monospace" font-size="9" fill="#9b9684">0</text>
+        <rect class="gb" x="72" y="180" width="56" height="0" data-h="1.5" fill="#DC5212"/>
+        <rect class="gb" x="153" y="180" width="56" height="0" data-h="7" fill="#DC5212"/>
+        <rect class="gb" x="234" y="180" width="56" height="0" data-h="21" fill="#DC5212"/>
+        <rect class="gb" x="315" y="180" width="56" height="0" data-h="51" fill="#DC5212"/>
+        <rect class="gb" x="396" y="180" width="56" height="0" data-h="108" fill="#FF6B1F"/>
+        <rect class="gb" x="477" y="180" width="56" height="0" data-h="193" fill="#FF6B1F"/>
+        <text x="100" y="200" text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" fill="#c8c4b4">2026</text>
+        <text x="181" y="200" text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" fill="#c8c4b4">2027</text>
+        <text x="262" y="200" text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" fill="#c8c4b4">2028</text>
+        <text x="343" y="200" text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" fill="#c8c4b4">2029</text>
+        <text x="424" y="200" text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" fill="#c8c4b4">2030</text>
+        <text x="505" y="200" text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" fill="#c8c4b4" font-weight="700">2031</text>
+        <text x="100" y="172" text-anchor="middle" font-family="'Space Mono',monospace" font-size="9" fill="#FF6B1F">1,2</text>
+        <text x="181" y="166" text-anchor="middle" font-family="'Space Mono',monospace" font-size="9" fill="#FF6B1F">5,1</text>
+        <text x="262" y="152" text-anchor="middle" font-family="'Space Mono',monospace" font-size="9" fill="#FF6B1F">15,4</text>
+        <text x="343" y="122" text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" fill="#FF6B1F" font-weight="700">37,5</text>
+        <text x="424" y="65" text-anchor="middle" font-family="'Space Mono',monospace" font-size="10" fill="#FF6B1F" font-weight="700">79,5</text>
+        <text x="505" y="-12" dy="20" text-anchor="middle" font-family="'Space Mono',monospace" font-size="12" fill="#FF6B1F" font-weight="700">142,0</text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<section id="pl" class="paper">
+  <div class="wrap">
+    <div class="tag rv"><span class="c">[03]</span><span>CUENTA DE RESULTADOS</span><span class="ln"></span></div>
+    <div class="kick rv">El despegue.</div>
+    <h2 class="rv d1">€142M de ingresos.<br>€72M de <span class="am">EBITDA.</span></h2>
+    <table class="tbl rv d2">
+      <thead><tr><th>Concepto · M EUR</th><th>2026</th><th>2027</th><th>2028</th><th>2029</th><th>2030</th><th>2031</th></tr></thead>
+      <tbody>
+        <tr><td>Ingresos</td><td>1,17</td><td>5,07</td><td>15,39</td><td>37,48</td><td>79,53</td><td>141,97</td></tr>
+        <tr><td>COGS</td><td>-0,40</td><td>-1,78</td><td>-4,75</td><td>-10,34</td><td>-20,42</td><td>-34,40</td></tr>
+        <tr class="sub"><td>MARGEN BRUTO</td><td>0,77</td><td>3,29</td><td>10,64</td><td>27,14</td><td>59,11</td><td>107,57</td></tr>
+        <tr><td>OPEX corporativo</td><td>-2,30</td><td>-4,40</td><td>-8,20</td><td>-13,00</td><td>-23,00</td><td>-38,00</td></tr>
+        <tr class="tot"><td>EBITDA</td><td>-1,56</td><td>-1,06</td><td>2,74</td><td>14,84</td><td>37,61</td><td>72,37</td></tr>
+        <tr><td>Margen EBITDA</td><td>n.s.</td><td>-21%</td><td>18%</td><td>40%</td><td>47%</td><td>51%</td></tr>
+        <tr><td>Resultado neto</td><td>-1,76</td><td>-1,31</td><td>1,95</td><td>10,90</td><td>27,50</td><td>52,00</td></tr>
+        <tr><td>FTE</td><td>15</td><td>30</td><td>62</td><td>105</td><td>175</td><td>255</td></tr>
+      </tbody>
+    </table>
+    <div class="kstrip rv d3">
+      <div class="kbox"><div class="kv">2028</div><div class="kl">break-even EBITDA</div></div>
+      <div class="kbox"><div class="kv">76%</div><div class="kl">margen bruto en 2031</div></div>
+      <div class="kbox"><div class="kv">€70M+</div><div class="kl">caja acumulada fin 2031</div></div>
+      <div class="kbox"><div class="kv">32</div><div class="kl">licenciatarios operativos 2031</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="disr" class="ink">
+  <div class="pgl"></div>
+  <div class="wrap">
+    <div class="tag rv"><span class="c">[04]</span><span>LAS DERIVADAS · MOTOR DEL UNICORNIO</span><span class="ln"></span></div>
+    <div class="kick rv">Lo que cruza el umbral de €1.000M.</div>
+    <h2 class="rv d1">Cuatro derivadas.<br><span class="bl">Un unicornio.</span></h2>
+    <p class="lead rv d2">En el plan a 5 años estas derivadas pasan de opción a motor: red distribuida, internacional y nuevos modelos suman ~€61M en 2031 — el 43% de los ingresos y el verdadero salto al unicornio.</p>
+    <div class="disr-grid">
+      <div class="disr rv d1"><div class="dn">01</div><h3>Pago por uso de infraestructura</h3><p>El activo deja de ser una compra que la administración amortiza y pasa a ser una inversión que genera beneficio. Abre el mercado público completo y convierte el ingreso puntual en flujo recurrente.</p><div class="dt">▸ MERCADO PÚBLICO ENTERO</div></div>
+      <div class="disr rv d2"><div class="dn">02</div><h3>Red distribuida a escala</h3><p>Con 5,5M de m² de stock, el cómputo + almacenamiento + blockchain distribuido (lógica DePIN) es una compañía dentro de la compañía. Capa E: de €0,5M en 2028 a €15M en 2031.</p><div class="dt">▸ DE €0,5M A €15M EN 4 AÑOS</div></div>
+      <div class="disr rv d3"><div class="dn">03</div><h3>Mercado financiero blockchain</h3><p>El activo digital con colateral físico es tokenizable. Tokenización, financiación de promociones y mercado secundario: CUEVA cobra fees sobre el valor que circula, no solo el que se construye.</p><div class="dt">▸ FEES SOBRE EL CAPITAL</div></div>
+      <div class="disr rv d4"><div class="dn">04</div><h3>Internacionalización</h3><p>Tres mercados internacionales desde 2028. Cada país nuevo es otra base nacional con su propio P&L. Capa internacional: de €1M en 2028 a €24M en 2031.</p><div class="dt">▸ DE €1M A €24M EN 4 AÑOS</div></div>
+    </div>
+  </div>
+</section>
+
+<section id="unicornio" class="paper">
+  <div class="wrap">
+    <div class="tag rv"><span class="c">[05]</span><span>EL CAMINO AL UNICORNIO</span><span class="ln"></span></div>
+    <div class="kick rv">La respuesta honesta.</div>
+    <h2 class="rv d1">€1.175M en 2031.<br>El umbral, <span class="am">cruzado.</span></h2>
+    <p class="lead rv d2">Cada escalón es un año de ejecución. El umbral de €1.000M se cruza en 2031, cuando €142M de ingresos a múltiplo 7-9× — y €72M de EBITDA a 16-19× — sitúan el proyecto por encima del millardo.</p>
+    <div class="stair">
+      <div class="step s1 rv d1"><div class="sy">HOY</div><div class="sv">€18M</div><div class="sl">may-2026</div></div>
+      <div class="step s2 rv d2"><div class="sy">2029</div><div class="sv">€310M</div><div class="sl">plan en marcha</div></div>
+      <div class="step s3 rv d3"><div class="sy">2030</div><div class="sv">€640M</div><div class="sl">derivadas en motor</div></div>
+      <div class="step s4 rv d4"><div class="uni">🦄</div><div class="sy">2031</div><div class="sv">€1.175M</div><div class="sl">UNICORNIO</div></div>
+    </div>
+    <p class="kick rv" style="margin-top:46px">Las 4 palancas que cruzan el umbral</p>
+    <div class="levers" style="--x:1">
+      <div class="lever rv d1" style="background:var(--paper);border-color:var(--line)"><div class="lvn" style="color:var(--amber)">PALANCA 01</div><h4 style="color:var(--ink)">Red distribuida</h4><p style="color:var(--ink-2)">El cómputo distribuido como compañía dentro de la compañía.</p></div>
+      <div class="lever rv d2" style="background:var(--paper);border-color:var(--line)"><div class="lvn" style="color:var(--amber)">PALANCA 02</div><h4 style="color:var(--ink)">Pago por uso</h4><p style="color:var(--ink-2)">Abre el mercado público y multiplica el ingreso recurrente.</p></div>
+      <div class="lever rv d3" style="background:var(--paper);border-color:var(--line)"><div class="lvn" style="color:var(--amber)">PALANCA 03</div><h4 style="color:var(--ink)">Mercado financiero</h4><p style="color:var(--ink-2)">Fees sobre el valor que circula, no solo el que se construye.</p></div>
+      <div class="lever rv d4" style="background:var(--paper);border-color:var(--line)"><div class="lvn" style="color:var(--amber)">PALANCA 04</div><h4 style="color:var(--ink)">Internacional</h4><p style="color:var(--ink-2)">Cada país nuevo es otra base nacional con su P&L.</p></div>
+    </div>
+    <p class="lead rv" style="font-size:15px;color:var(--ink-3);margin-top:30px">CUEVA tiene la <strong style="color:var(--amber)">arquitectura de un unicornio</strong>. El BP a 3 años construye los cimientos; este BP a 5 años, ejecutando las derivadas, cruza el umbral. No es la hipótesis fácil — pero el camino existe y está diseñado en el modelo.</p>
+  </div>
+</section>
+
+<section class="ink">
+  <div class="pgl"></div>
+  <div class="wrap">
+    <div class="tag rv"><span class="c">[ ·· ]</span><span>DOSSIER · 5 AÑOS</span><span class="ln"></span></div>
+    <h2 class="rv d1">Explora el<br><span class="bl">dossier completo.</span></h2>
+    <div class="doclinks">
+      <a class="doclink rv d1" href="index.html"><div class="dn">[ 00 ]</div><h3>Índice</h3><p>El punto de entrada al dossier de 5 años.</p><div class="go">↑ IR AL ÍNDICE</div></a>
+      <a class="doclink rv d2" href="CUEVA_PRESENTACION.html"><div class="dn">[ 01 ]</div><h3>Presentación</h3><p>El proyecto: paradigma, activo, producto y visión.</p><div class="go">→ ABRIR</div></a>
+      <a class="doclink rv d3" href="CUEVA_EXPOSICION_MODELO.html"><div class="dn">[ 02 ]</div><h3>Exposición del modelo</h3><p>Cómo funciona: ciclo del activo, 7 capas y red.</p><div class="go">→ ABRIR</div></a>
+    </div>
+  </div>
+</section>
+
+<footer>CUEVA · BP 5 AÑOS · PLAN 2026-2031 · CAMINO AL UNICORNIO · MAYO 2026 · DOCUMENTO DE TRABAJO</footer>
+<script>
+const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('show');io.unobserve(e.target);}});},{threshold:.13,rootMargin:'0px 0px -60px 0px'});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+const cio=new IntersectionObserver((es)=>{es.forEach(e=>{
+  if(!e.isIntersecting)return;const el=e.target,raw=el.dataset.c,t=parseFloat(raw),dec=(raw.split('.')[1]||'').length;
+  const p=el.dataset.p||'',s=el.dataset.s||'',t0=performance.now();
+  function tk(n){const x=Math.min((n-t0)/1700,1),e2=1-Math.pow(1-x,3),v=t*e2;
+    el.textContent=p+(dec?v.toFixed(dec).replace('.',','):Math.round(v))+s;if(x<1)requestAnimationFrame(tk);}
+  requestAnimationFrame(tk);cio.unobserve(el);});},{threshold:.5});
+document.querySelectorAll('[data-c]').forEach(el=>cio.observe(el));
+const gio=new IntersectionObserver((es)=>{es.forEach(e=>{
+  if(!e.isIntersecting)return;
+  e.target.querySelectorAll('.gb').forEach((b,i)=>{const h=parseFloat(b.dataset.h);
+    setTimeout(()=>{b.style.transition='y .9s cubic-bezier(.16,1,.3,1),height .9s cubic-bezier(.16,1,.3,1)';
+      b.setAttribute('height',h);b.setAttribute('y',180-h);},i*120);});
+  gio.unobserve(e.target);});},{threshold:.4});
+const rv=document.getElementById('rev');if(rv)gio.observe(rv);
+document.querySelectorAll('nav a').forEach(a=>{a.addEventListener('click',ev=>{const h=a.getAttribute('href');
+  if(h.startsWith('#')){const t=document.querySelector(h);if(t){ev.preventDefault();t.scrollIntoView({behavior:'smooth'});}}});});
+</script>
+</body>
+</html>

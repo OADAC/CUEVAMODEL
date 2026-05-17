@@ -1,0 +1,800 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CUEVA · El viaje del activo — experiencia inmersiva</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Expanded:wght@700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0a0907; --ink:#E9E5DA; --dim:#8a8475;
+  --amber:#DC5212; --amber-hi:#FF6B1F; --blue:#2E86DE; --blue-soft:#7FB2E8;
+  --green:#7CB342; --gold:#E8A33D;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{background:var(--bg);color:var(--ink);font-family:'Archivo',sans-serif;-webkit-font-smoothing:antialiased}
+body{overflow-x:hidden}
+::selection{background:var(--amber);color:#0a0907}
+h1,h2,.disp{font-family:'Archivo Expanded','Archivo',sans-serif;font-weight:900;letter-spacing:-.02em;line-height:1}
+.mono{font-family:'Space Mono',monospace}
+
+#scene{position:fixed;inset:0;z-index:1}
+#scene canvas{display:block}
+.vignette{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 38%,rgba(10,9,7,.6) 100%)}
+.grain{position:fixed;inset:0;z-index:3;pointer-events:none;opacity:.5;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E")}
+
+.hud{position:fixed;z-index:20;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--dim)}
+.hud.tl{top:24px;left:28px}
+.hud.tr{top:24px;right:28px;text-align:right}
+.hud .brand{font-family:'Archivo Expanded';font-weight:900;font-size:20px;letter-spacing:.04em;color:var(--ink)}
+.hud .brand b{color:var(--amber-hi)}
+.progress-rail{position:fixed;right:26px;top:50%;transform:translateY(-50%);z-index:20;display:flex;flex-direction:column;gap:9px;align-items:center}
+.progress-rail .pd{width:7px;height:7px;border:1px solid var(--dim);border-radius:50%;transition:.4s}
+.progress-rail .pd.on{background:var(--amber);border-color:var(--amber);box-shadow:0 0 12px var(--amber);transform:scale(1.4)}
+.progress-rail .pd.done{background:var(--dim);border-color:var(--dim)}
+
+.story{position:relative;z-index:10}
+.chapter{min-height:100vh;display:flex;align-items:center;padding:0 8vw;position:relative}
+.chapter .inner{max-width:700px}
+.chapter.right .inner{margin-left:auto;text-align:right}
+.chapter.center{justify-content:center}
+.chapter.center .inner{text-align:center;max-width:920px}
+.ch-num{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.3em;color:var(--amber-hi);margin-bottom:18px}
+.ch-title{font-size:clamp(34px,5.8vw,76px);text-transform:uppercase;margin-bottom:22px}
+.ch-title .am{color:var(--amber)} .ch-title .bl{color:var(--blue-soft)} .ch-title .gd{color:var(--gold)}
+.ch-title .out{-webkit-text-stroke:1.5px var(--ink);color:transparent}
+.ch-text{font-size:clamp(14px,1.55vw,18px);line-height:1.62;color:#cdc8b9;font-weight:500}
+.ch-text b{color:var(--ink)}
+.ch-tag{display:inline-block;margin-top:20px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.13em;
+  color:var(--amber-hi);border:1px solid rgba(220,82,18,.45);padding:8px 14px}
+.reveal{opacity:0;transform:translateY(40px);transition:opacity 1.1s cubic-bezier(.16,1,.3,1),transform 1.1s cubic-bezier(.16,1,.3,1)}
+.reveal.in{opacity:1;transform:none}
+
+#hero .inner{max-width:1020px}
+#hero .ch-title{font-size:clamp(46px,10.5vw,140px);line-height:.9}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:11px;border:1px solid rgba(255,255,255,.18);
+  padding:9px 16px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--amber-hi);margin-bottom:34px}
+.hero-eyebrow .dot{width:7px;height:7px;background:var(--amber);border-radius:50%;animation:bk 1.5s infinite}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.2}}
+.scroll-cue{margin-top:42px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.22em;color:var(--dim);
+  display:flex;align-items:center;gap:14px}
+.scroll-cue .ln{width:54px;height:1px;background:linear-gradient(90deg,var(--amber),transparent);position:relative;overflow:hidden}
+.scroll-cue .ln::after{content:"";position:absolute;inset:0;width:18px;background:var(--amber-hi);animation:slide 1.8s infinite}
+@keyframes slide{0%{transform:translateX(-20px)}100%{transform:translateX(60px)}}
+
+/* data chips / mini-stats dentro de capítulos */
+.stats{margin-top:24px;display:flex;gap:10px;flex-wrap:wrap}
+.right .stats{justify-content:flex-end}
+.center .stats{justify-content:center}
+.stat{border:1px solid rgba(255,255,255,.14);padding:12px 16px;min-width:96px}
+.stat .sv{font-family:'Archivo Expanded';font-weight:900;font-size:22px;color:var(--amber-hi)}
+.stat .sl{font-family:'Space Mono',monospace;font-size:9px;letter-spacing:.06em;color:var(--dim);margin-top:4px}
+
+/* mini-list capas / derivadas */
+.minigrid{margin-top:24px;display:grid;gap:7px}
+.minigrid.g7{grid-template-columns:repeat(7,1fr);max-width:560px}
+.minigrid.g4{grid-template-columns:repeat(2,1fr);max-width:520px}
+.right .minigrid{margin-left:auto}
+.center .minigrid{margin-left:auto;margin-right:auto}
+.mi{border:1px solid rgba(255,255,255,.14);padding:11px 9px;font-family:'Space Mono',monospace;transition:.4s}
+.minigrid.g7 .mi{text-align:center;padding:10px 3px}
+.mi .mid{font-size:15px;font-weight:700;color:var(--amber-hi)}
+.minigrid.g7 .mi .mil{font-size:7.5px;letter-spacing:.03em;color:var(--dim);margin-top:5px;line-height:1.3}
+.minigrid.g4 .mi{display:flex;flex-direction:column;gap:5px}
+.minigrid.g4 .mi .mit{font-family:'Archivo Expanded';font-weight:800;font-size:13px;color:var(--ink);letter-spacing:0}
+.minigrid.g4 .mi .mil{font-size:9.5px;color:var(--dim);line-height:1.45}
+
+/* timeline BP */
+.bptl{margin-top:24px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:600px}
+.center .bptl{margin:24px auto 0}
+.bpc{border:1px solid rgba(255,255,255,.14);padding:13px 10px;font-family:'Space Mono',monospace}
+.bpc .by{font-size:11px;color:var(--amber-hi);letter-spacing:.1em}
+.bpc .bv{font-family:'Archivo Expanded';font-weight:900;font-size:19px;color:var(--ink);margin:7px 0 3px}
+.bpc .bl2{font-size:8.5px;color:var(--dim)}
+
+#final{background:linear-gradient(180deg,transparent,rgba(10,9,7,.45))}
+.final-links{margin-top:38px;display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.flink{border:1px solid rgba(255,255,255,.2);padding:18px 24px;text-decoration:none;color:var(--ink);
+  font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.08em;transition:.3s;display:flex;flex-direction:column;gap:6px;min-width:190px}
+.flink:hover{background:var(--amber);color:#0a0907;border-color:var(--amber);transform:translateY(-5px)}
+.flink b{font-family:'Archivo Expanded';font-weight:900;font-size:15px;letter-spacing:0}
+.flink span{opacity:.7}
+
+#loader{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .8s}
+#loader.gone{opacity:0;pointer-events:none}
+#loader .lt{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.3em;color:var(--amber-hi);margin-bottom:24px}
+#loader .lbar{width:200px;height:2px;background:rgba(255,255,255,.1);overflow:hidden}
+#loader .lbar::after{content:"";display:block;height:100%;width:40%;background:var(--amber);animation:ld 1s infinite}
+@keyframes ld{0%{transform:translateX(-100%)}100%{transform:translateX(350%)}}
+
+@media(max-width:820px){
+  .chapter{padding:0 7vw}
+  .progress-rail{right:11px;gap:7px}
+  .hud.tl,.hud.tr{font-size:9px}
+  .minigrid.g7{grid-template-columns:repeat(4,1fr)}
+  .minigrid.g4{grid-template-columns:1fr}
+  .bptl{grid-template-columns:repeat(2,1fr)}
+  .final-links{flex-direction:column}
+}
+</style>
+</head>
+<body>
+
+<div id="loader"><div class="lt">CARGANDO LA EXPERIENCIA CUEVA</div><div class="lbar"></div></div>
+
+<div id="scene"></div>
+<div class="vignette"></div>
+<div class="grain"></div>
+
+<div class="hud tl"><div class="brand">CUE<b>V</b>A</div><div style="margin-top:6px">EL VIAJE DEL ACTIVO</div></div>
+<div class="hud tr">EXPERIENCIA INMERSIVA<br>v 2.0 · 3D · 12 ESCENAS</div>
+
+<div class="progress-rail" id="rail"></div>
+
+<div class="story">
+
+  <!-- 0 · HERO -->
+  <section class="chapter center" id="hero">
+    <div class="inner">
+      <div class="hero-eyebrow reveal"><span class="dot"></span>SISTEMA OPERATIVO DE LA CONSTRUCCIÓN</div>
+      <h1 class="ch-title reveal">El viaje<br>del <span class="am">activo</span></h1>
+      <p class="ch-text reveal" style="max-width:640px;margin:0 auto">Acompaña a un activo desde que nace como un punto de luz hasta que se convierte en la red de un sector entero. Doce escenas. Un modelo de negocio completo. <b>Desplázate para empezar.</b></p>
+      <div class="scroll-cue reveal" style="justify-content:center"><span>DESPLAZAR</span><span class="ln"></span></div>
+    </div>
+  </section>
+
+  <!-- 1 · ORIGEN -->
+  <section class="chapter" id="c1">
+    <div class="inner">
+      <div class="ch-num reveal">[ 01 ] · ORIGEN</div>
+      <h2 class="ch-title reveal">Todo empieza<br>con un <span class="am">punto.</span></h2>
+      <p class="ch-text reveal">Una idea. Un dato. Un impulso que recorre el circuito. Antes de ser un edificio, una calle o una ciudad, todo activo CUEVA empieza siendo <b>información que busca forma</b>.</p>
+      <div class="ch-tag reveal">▸ EL BIT ENTRA EN EL SISTEMA</div>
+    </div>
+  </section>
+
+  <!-- 2 · DISEÑO -->
+  <section class="chapter right" id="c2">
+    <div class="inner">
+      <div class="ch-num reveal">[ 02 ] · DISEÑO</div>
+      <h2 class="ch-title reveal">El Designer<br>le da <span class="bl">forma.</span></h2>
+      <p class="ch-text reveal">El punto entra en la retícula. El <b>Designer avanzado</b> lo descompone, lo dimensiona y lo planifica: geometría, despiece, cálculo, plan de seguridad, memoria de carpinterías, motor de simulación sísmica e IA generativa de infografías.</p>
+      <div class="ch-tag reveal">▸ GEOMETRÍA · DESPIECE · PROYECTO · IA</div>
+    </div>
+  </section>
+
+  <!-- 3 · MATERIALIZACIÓN -->
+  <section class="chapter" id="c3">
+    <div class="inner">
+      <div class="ch-num reveal">[ 03 ] · MATERIALIZACIÓN</div>
+      <h2 class="ch-title reveal">Nace el<br><span class="am">colateral físico.</span></h2>
+      <p class="ch-text reveal">El wireframe se solidifica. Un <b>licenciatario de fabricación</b> lo produce: el activo cobra masa, peso, presencia. Es ya un elemento real — y emite su primera capa de valor.</p>
+      <div class="ch-tag reveal">▸ FABRICACIÓN · ROYALTY 7 €/m²</div>
+    </div>
+  </section>
+
+  <!-- 4 · GEMELO DIGITAL -->
+  <section class="chapter right" id="c4">
+    <div class="inner">
+      <div class="ch-num reveal">[ 04 ] · VINCULACIÓN</div>
+      <h2 class="ch-title reveal">Y su <span class="bl">gemelo<br>digital.</span></h2>
+      <p class="ch-text reveal">Del elemento físico emerge su gemelo digital. La neurona late. Se vinculan para siempre: <b>activo digital con colateral físico</b>. Proof of Installation, DPP y Carpeta Madre quedan registrados on-chain. <b>Si no está en el sistema, no existe.</b></p>
+      <div class="ch-tag reveal">▸ NEURONA · DPP · MONTAJE · ROYALTY 7 €/m²</div>
+    </div>
+  </section>
+
+  <!-- 5 · LAS 7 CAPAS -->
+  <section class="chapter" id="c5">
+    <div class="inner">
+      <div class="ch-num reveal">[ 05 ] · EL CICLO</div>
+      <h2 class="ch-title reveal">Atraviesa las<br><span class="am">7 capas.</span></h2>
+      <p class="ch-text reveal">Cada activo, al recorrer el sistema, activa siete capas de ingreso. No paga una vez: paga <b>durante toda su vida</b>.</p>
+      <div class="minigrid g7 reveal">
+        <div class="mi"><div class="mid">A</div><div class="mil">ROYALTY 14€</div></div>
+        <div class="mi"><div class="mid">B</div><div class="mil">DISEÑO 3€</div></div>
+        <div class="mi"><div class="mid">C</div><div class="mil">HARDWARE</div></div>
+        <div class="mi"><div class="mid">D</div><div class="mil">SERVICIOS</div></div>
+        <div class="mi"><div class="mid">E</div><div class="mil">RED DISTR.</div></div>
+        <div class="mi"><div class="mid">F</div><div class="mil">MARKET</div></div>
+        <div class="mi"><div class="mid">G</div><div class="mil">MOOLDE 25%</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6 · LA RED -->
+  <section class="chapter right" id="c6">
+    <div class="inner">
+      <div class="ch-num reveal">[ 06 ] · LA RED</div>
+      <h2 class="ch-title reveal">Se une a la<br><span class="bl">red.</span></h2>
+      <p class="ch-text reveal">Un activo no está solo. Se conecta con miles. Juntos forman la calle, el edificio, la urbanización, <b>la ciudad</b> — una red distribuida que computa, gobierna y crece con cada nodo.</p>
+      <div class="stats reveal">
+        <div class="stat"><div class="sv">5,6M</div><div class="sl">m² EN RED · 2031</div></div>
+        <div class="stat"><div class="sv">32</div><div class="sl">LICENCIATARIOS</div></div>
+        <div class="stat"><div class="sv">25%</div><div class="sl">CÓMPUTO CUEVA</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7 · MODELOS DISRUPTIVOS -->
+  <section class="chapter" id="c7">
+    <div class="inner">
+      <div class="ch-num reveal">[ 07 ] · DISRUPCIÓN</div>
+      <h2 class="ch-title reveal">Cuatro modelos<br>que <span class="am">cambian el juego.</span></h2>
+      <p class="ch-text reveal">Sobre la red operan cuatro modelos disruptivos. CUEVA deja de ser software de la obra para volverse <b>la infraestructura económica del activo construido</b>.</p>
+      <div class="minigrid g4 reveal">
+        <div class="mi"><div class="mit">Pago por uso</div><div class="mil">El activo pasa de compra amortizable a inversión que genera beneficio. Abre el mercado público entero.</div></div>
+        <div class="mi"><div class="mit">Créditos de carbono</div><div class="mil">Construcción trazable y de baja huella: CO₂ evitado, certificable y monetizable.</div></div>
+        <div class="mi"><div class="mit">Mercado financiero</div><div class="mil">El activo es tokenizable: financiación, mercado secundario, fees sobre el capital.</div></div>
+        <div class="mi"><div class="mit">Inversión en stock</div><div class="mil">CUEVA coinvierte en producción y promociones: retorno financiero + royalty.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8 · MAPA DE DESPLIEGUE -->
+  <section class="chapter right" id="c8">
+    <div class="inner">
+      <div class="ch-num reveal">[ 08 ] · DESPLIEGUE</div>
+      <h2 class="ch-title reveal">El mapa de<br>la <span class="bl">red.</span></h2>
+      <p class="ch-text reveal">La red se teje sobre el territorio: la capacidad ancla, los licenciatarios OADAC-type, el producto urbano <b>iPath</b> en ayuntamientos —Baix Camp, Valencia, Hospitalet, Buñol, Utiel— y el piloto <b>Moolde</b> de obra in situ. Tras la base nacional, la salida internacional.</p>
+      <div class="stats reveal">
+        <div class="stat"><div class="sv">14+</div><div class="sl">NODOS · FABRICACIÓN</div></div>
+        <div class="stat"><div class="sv">iPath</div><div class="sl">AYUNTAMIENTOS</div></div>
+        <div class="stat"><div class="sv">3</div><div class="sl">MERCADOS INTL.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 · EL PLAN -->
+  <section class="chapter" id="c9">
+    <div class="inner">
+      <div class="ch-num reveal">[ 09 ] · EL PLAN</div>
+      <h2 class="ch-title reveal">De €3,8M<br>a <span class="am">€142M.</span></h2>
+      <p class="ch-text reveal">2026 es el año de salida a mercado. El plan financiero pleno se despliega desde 2027: break-even en 2028 y crecimiento exponencial sostenido por la red y las derivadas.</p>
+      <div class="bptl reveal">
+        <div class="bpc"><div class="by">2026</div><div class="bv">salida</div><div class="bl2">≤25k m² · beta</div></div>
+        <div class="bpc"><div class="by">2028</div><div class="bv">€15M</div><div class="bl2">break-even</div></div>
+        <div class="bpc"><div class="by">2029</div><div class="bv">€37M</div><div class="bl2">red consolidada</div></div>
+        <div class="bpc"><div class="by">2031</div><div class="bv">€142M</div><div class="bl2">EBITDA 51%</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 · EL UNICORNIO -->
+  <section class="chapter right" id="c10">
+    <div class="inner">
+      <div class="ch-num reveal">[ 10 ] · EL UNICORNIO</div>
+      <h2 class="ch-title reveal">El camino al<br><span class="gd">unicornio.</span></h2>
+      <p class="ch-text reveal">Cada escalón es un año de ejecución. El escenario base a 3 años lleva el proyecto a ~€225M. Ejecutando las derivadas a gran escala, en 2031 se cruza el umbral de los <b>€1.000M</b>.</p>
+      <div class="stats reveal">
+        <div class="stat"><div class="sv">€18M</div><div class="sl">HOY · 2026</div></div>
+        <div class="stat"><div class="sv">€225M</div><div class="sl">BASE · 2029</div></div>
+        <div class="stat"><div class="sv">€1.175M</div><div class="sl">UNICORNIO · 2031</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 11 · EL OS / CIERRE -->
+  <section class="chapter center" id="final">
+    <div class="inner">
+      <div class="ch-num reveal">[ 11 ] · EL SISTEMA OPERATIVO</div>
+      <h2 class="ch-title reveal">El sistema operativo<br>de la <span class="am">construcción.</span></h2>
+      <p class="ch-text reveal" style="max-width:660px;margin:0 auto">Esto es CUEVA: una red viva de activos físico-digitales donde cada elemento construido genera valor, dato y gobernanza. El viaje de un activo es el viaje del proyecto entero.</p>
+      <div class="final-links reveal">
+        <a class="flink" href="../Bp 3 años/index.html"><b>BP · 3 AÑOS</b><span>El escenario base →</span></a>
+        <a class="flink" href="../Bp 5 años/index.html"><b>BP · 5 AÑOS</b><span>El camino al unicornio →</span></a>
+      </div>
+      <div class="reveal" style="margin-top:38px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--dim)">
+        CUEVA · ACTIVO DIGITAL CON COLATERAL FÍSICO · EXPERIENCIA INMERSIVA · MAYO 2026
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+(function(){
+  "use strict";
+  const loader = document.getElementById('loader');
+  const NCH = 12;
+
+  // rail
+  const rail = document.getElementById('rail');
+  for(let i=0;i<NCH;i++){ const d=document.createElement('div'); d.className='pd'; rail.appendChild(d); }
+  const dots=[...rail.children];
+
+  if (typeof THREE === 'undefined'){
+    loader.classList.add('gone');
+    document.querySelectorAll('.reveal').forEach(el=>el.classList.add('in'));
+    return;
+  }
+
+  // ===================== SETUP =====================
+  const host=document.getElementById('scene');
+  const scene=new THREE.Scene();
+  scene.fog=new THREE.FogExp2(0x0a0907,0.022);
+  const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,0.1,500);
+  camera.position.set(0,2,15);
+  const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});
+  renderer.setSize(innerWidth,innerHeight);
+  renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+  host.appendChild(renderer.domElement);
+
+  const C_AMBER=0xDC5212,C_AMBERH=0xFF6B1F,C_BLUE=0x2E86DE,C_INK=0xE9E5DA,C_GREEN=0x7CB342,C_GOLD=0xE8A33D;
+
+  scene.add(new THREE.AmbientLight(0x40382c,0.95));
+  const keyLight=new THREE.PointLight(C_AMBERH,2.4,80); keyLight.position.set(6,9,11); scene.add(keyLight);
+  const blueLight=new THREE.PointLight(C_BLUE,1.5,80); blueLight.position.set(-9,-2,7); scene.add(blueLight);
+  const coreLight=new THREE.PointLight(0xffffff,0,32); scene.add(coreLight);
+  const goldLight=new THREE.PointLight(C_GOLD,0,60); goldLight.position.set(0,14,4); scene.add(goldLight);
+
+  // helpers
+  const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+  const lerp=(a,b,t)=>a+(b-a)*t;
+  const seg=(p,a,b)=>clamp((p-a)/(b-a),0,1);
+  const pulse01=(p,a,b)=>{const t=seg(p,a,b);return Math.sin(t*Math.PI);};
+  const ease=t=>t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;
+  function setOp(o,v){ if(o.material){o.material.opacity=v;o.material.transparent=true;} }
+
+  // ===================== ESTRELLAS =====================
+  function buildStars(n,radius){
+    const g=new THREE.BufferGeometry(),pos=new Float32Array(n*3);
+    for(let i=0;i<n;i++){
+      const r=radius*(0.4+Math.random()*0.6),t=Math.random()*Math.PI*2,ph=Math.acos(2*Math.random()-1);
+      pos[i*3]=r*Math.sin(ph)*Math.cos(t);pos[i*3+1]=r*Math.sin(ph)*Math.sin(t);pos[i*3+2]=r*Math.cos(ph);
+    }
+    g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+    return new THREE.Points(g,new THREE.PointsMaterial({color:0x8a8475,size:0.13,transparent:true,opacity:0.7}));
+  }
+  const stars=buildStars(2000,100); scene.add(stars);
+
+  // ===================== CIRCUITO =====================
+  const circuit=new THREE.Group(); scene.add(circuit);
+  (function(){
+    const mat=new THREE.LineBasicMaterial({color:C_AMBER,transparent:true,opacity:0.22});
+    const span=42,step=4.2;
+    for(let i=-span;i<=span;i+=step){
+      circuit.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(i,-6,-span),new THREE.Vector3(i,-6,span)]),mat));
+      circuit.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-span,-6,i),new THREE.Vector3(span,-6,i)]),mat));
+    }
+  })();
+  const pulses=[];
+  (function(){
+    const pm=new THREE.MeshBasicMaterial({color:C_AMBERH});
+    for(let i=0;i<16;i++){
+      const p=new THREE.Mesh(new THREE.SphereGeometry(0.16,8,8),pm);
+      p.userData={axis:Math.random()<0.5?'x':'z',lane:(Math.floor(Math.random()*21)-10)*4.2,t:Math.random(),speed:0.0016+Math.random()*0.003};
+      circuit.add(p); pulses.push(p);
+    }
+  })();
+
+  // ===================== EL ACTIVO =====================
+  const asset=new THREE.Group(); scene.add(asset);
+  const core=new THREE.Mesh(new THREE.IcosahedronGeometry(0.55,1),
+    new THREE.MeshStandardMaterial({color:C_AMBERH,emissive:C_AMBERH,emissiveIntensity:2.2,roughness:0.3}));
+  asset.add(core);
+  const coreGlow=new THREE.Mesh(new THREE.SphereGeometry(1.1,16,16),
+    new THREE.MeshBasicMaterial({color:C_AMBERH,transparent:true,opacity:0.18}));
+  asset.add(coreGlow);
+  const wire=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.IcosahedronGeometry(2.4,1)),
+    new THREE.LineBasicMaterial({color:C_BLUE,transparent:true,opacity:0}));
+  asset.add(wire);
+  const solid=new THREE.Mesh(new THREE.BoxGeometry(2.6,2.6,2.6),
+    new THREE.MeshStandardMaterial({color:C_AMBER,emissive:C_AMBER,emissiveIntensity:0.25,roughness:0.55,metalness:0.2,transparent:true,opacity:0}));
+  asset.add(solid);
+  const solidEdges=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(2.62,2.62,2.62)),
+    new THREE.LineBasicMaterial({color:C_AMBERH,transparent:true,opacity:0}));
+  asset.add(solidEdges);
+  const twin=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(2.6,2.6,2.6)),
+    new THREE.LineBasicMaterial({color:C_BLUE,transparent:true,opacity:0}));
+  asset.add(twin);
+  const twinNodes=new THREE.Group();
+  (function(){const nm=new THREE.MeshBasicMaterial({color:C_BLUE,transparent:true,opacity:0});const h=1.3;
+    [[-h,-h,-h],[h,-h,-h],[-h,h,-h],[h,h,-h],[-h,-h,h],[h,-h,h],[-h,h,h],[h,h,h]].forEach(p=>{
+      const nd=new THREE.Mesh(new THREE.SphereGeometry(0.12,8,8),nm);nd.position.set(p[0],p[1],p[2]);twinNodes.add(nd);});
+  })();
+  twin.add(twinNodes);
+  const neuron=new THREE.Mesh(new THREE.SphereGeometry(0.34,16,16),
+    new THREE.MeshStandardMaterial({color:0xffffff,emissive:C_AMBERH,emissiveIntensity:2.5,transparent:true,opacity:0}));
+  asset.add(neuron);
+  const linkMat=new THREE.LineBasicMaterial({color:C_AMBERH,transparent:true,opacity:0});
+  const linkGeo=new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0,0,0),new THREE.Vector3(0,0,0)]);
+  const link=new THREE.Line(linkGeo,linkMat); asset.add(link);
+
+  // ===================== 7 ANILLOS =====================
+  const rings=[],ringGroup=new THREE.Group(); scene.add(ringGroup);
+  const ringCols=[0xDC5212,0xE0632A,0xE57440,0xC25636,0x9C6A8C,0x5E7CA8,0x2E86DE];
+  for(let i=0;i<7;i++){
+    const r=new THREE.Mesh(new THREE.TorusGeometry(5.4,0.16,16,80),
+      new THREE.MeshStandardMaterial({color:ringCols[i],emissive:ringCols[i],emissiveIntensity:0.4,roughness:0.4,transparent:true,opacity:0}));
+    r.position.z=16-i*8; r.rotation.x=Math.PI/2;
+    ringGroup.add(r); rings.push(r);
+  }
+
+  // ===================== CIUDAD / RED =====================
+  const city=new THREE.Group(); scene.add(city);
+  const cityCubes=[];
+  (function(){
+    const geo=new THREE.BoxGeometry(1,1,1);
+    for(let i=0;i<185;i++){
+      const tall=0.6+Math.random()*4.4;
+      const m=new THREE.MeshStandardMaterial({color:Math.random()<0.62?C_AMBER:C_BLUE,
+        emissive:Math.random()<0.62?C_AMBER:C_BLUE,emissiveIntensity:0.32,roughness:0.5,metalness:0.25,transparent:true,opacity:0});
+      const cube=new THREE.Mesh(geo,m);
+      const ang=Math.random()*Math.PI*2,rad=4+Math.random()*32;
+      cube.position.set(Math.cos(ang)*rad,tall/2-3,Math.sin(ang)*rad);
+      cube.scale.set(0.7+Math.random()*1.6,tall,0.7+Math.random()*1.6);
+      cube.userData={baseY:cube.position.y,ph:Math.random()*Math.PI*2,baseSY:cube.scale.y};
+      city.add(cube); cityCubes.push(cube);
+    }
+    const lpos=[];
+    for(let i=0;i<cityCubes.length;i++)for(let j=i+1;j<cityCubes.length;j++){
+      if(cityCubes[i].position.distanceTo(cityCubes[j].position)<7&&Math.random()<0.12){
+        const a=cityCubes[i].position,b=cityCubes[j].position;lpos.push(a.x,a.y,a.z,b.x,b.y,b.z);}
+    }
+    const lg=new THREE.BufferGeometry();
+    lg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(lpos),3));
+    const nl=new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:C_BLUE,transparent:true,opacity:0}));
+    nl.name='netLines'; city.add(nl);
+  })();
+
+  // ===================== MODELOS DISRUPTIVOS =====================
+  const disrupt=new THREE.Group(); scene.add(disrupt);
+  const disrItems=[];
+  (function(){
+    const cols=[C_AMBERH,C_GREEN,C_BLUE,C_GOLD];
+    for(let i=0;i<4;i++){
+      const grp=new THREE.Group();
+      const ang=i/4*Math.PI*2;
+      grp.position.set(Math.cos(ang)*6,0,Math.sin(ang)*6);
+      const oct=new THREE.Mesh(new THREE.OctahedronGeometry(1.5,0),
+        new THREE.MeshStandardMaterial({color:cols[i],emissive:cols[i],emissiveIntensity:0.7,roughness:0.35,metalness:0.3,transparent:true,opacity:0}));
+      grp.add(oct);
+      const cage=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.OctahedronGeometry(2.1,0)),
+        new THREE.LineBasicMaterial({color:cols[i],transparent:true,opacity:0}));
+      grp.add(cage);
+      grp.userData={oct:oct,cage:cage,col:cols[i],ph:i};
+      disrupt.add(grp); disrItems.push(grp);
+    }
+    // anillo central que conecta los 4
+    const ring=new THREE.Mesh(new THREE.TorusGeometry(6,0.07,12,90),
+      new THREE.MeshBasicMaterial({color:C_INK,transparent:true,opacity:0}));
+    ring.rotation.x=Math.PI/2; ring.name='dRing'; disrupt.add(ring);
+  })();
+
+  // ===================== MAPA DE DESPLIEGUE =====================
+  const mapG=new THREE.Group(); scene.add(mapG);
+  mapG.rotation.x=-Math.PI*0.32;          // panel inclinado
+  const mapMarkers=[];
+  (function(){
+    // panel base
+    const pmat=new THREE.LineBasicMaterial({color:0x5a5446,transparent:true,opacity:0});
+    const W=22,H=16,st=2.75;
+    for(let x=-W/2;x<=W/2;x+=st)
+      mapG.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(x,-H/2,0),new THREE.Vector3(x,H/2,0)]),pmat));
+    for(let y=-H/2;y<=H/2;y+=st)
+      mapG.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(-W/2,y,0),new THREE.Vector3(W/2,y,0)]),pmat));
+    // marcadores: [x,y,color,size] — fabricación ámbar / iPath azul / Moolde verde
+    const M=[
+      [0,-1,C_AMBERH,1.0],   // capacidad ancla (centro)
+      [-7,3,C_AMBER,0.7],[5,5,C_AMBER,0.7],[8,-3,C_AMBER,0.7],[-9,-4,C_AMBER,0.7],[2,-6,C_AMBER,0.7],
+      [6,2,C_BLUE,0.55],[7,4,C_BLUE,0.55],[4,6,C_BLUE,0.55],[8,5,C_BLUE,0.55],   // iPath cluster (Baix Camp)
+      [-3,-3,C_BLUE,0.55],[-1,-5,C_BLUE,0.55],                                    // iPath Valencia
+      [3,4,C_GREEN,0.6]     // Moolde
+    ];
+    M.forEach((m,i)=>{
+      const h=0.7+m[3]*2.4;
+      const pin=new THREE.Mesh(new THREE.CylinderGeometry(0.06,0.06,h,6),
+        new THREE.MeshBasicMaterial({color:m[2],transparent:true,opacity:0}));
+      pin.position.set(m[0],m[1],h/2);
+      pin.rotation.x=Math.PI/2;
+      const head=new THREE.Mesh(new THREE.SphereGeometry(0.22*m[3]+0.12,12,12),
+        new THREE.MeshStandardMaterial({color:m[2],emissive:m[2],emissiveIntensity:1.6,transparent:true,opacity:0}));
+      head.position.set(m[0],m[1],h);
+      mapG.add(pin); mapG.add(head);
+      mapMarkers.push({pin:pin,head:head,col:m[2],ph:i*0.5,base:m[3]});
+    });
+    // conexiones del nodo central a los demás
+    const lp=[];
+    for(let i=1;i<M.length;i++){ lp.push(0,-1,0.05, M[i][0],M[i][1],0.05); }
+    const lg=new THREE.BufferGeometry();
+    lg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(lp),3));
+    const ml=new THREE.LineSegments(lg,new THREE.LineBasicMaterial({color:C_AMBERH,transparent:true,opacity:0}));
+    ml.name='mapLines'; mapG.add(ml);
+  })();
+
+  // ===================== EL PLAN (barras) =====================
+  const planG=new THREE.Group(); scene.add(planG);
+  const planBars=[];
+  (function(){
+    const vals=[1.2,5.1,15.4,37.5,79.5,142]; // ingresos M€ 2026-2031
+    const yrs=['26','27','28','29','30','31'];
+    const maxV=142, maxH=11;
+    for(let i=0;i<vals.length;i++){
+      const h=Math.max(0.4,vals[i]/maxV*maxH);
+      const m=new THREE.MeshStandardMaterial({color:i<3?C_AMBER:C_AMBERH,emissive:i<3?C_AMBER:C_AMBERH,
+        emissiveIntensity:0.4,roughness:0.4,metalness:0.25,transparent:true,opacity:0});
+      const bar=new THREE.Mesh(new THREE.BoxGeometry(1.6,1,1.6),m);
+      bar.position.set(-7.5+i*3,-4,0);
+      bar.userData={fullH:h,yr:yrs[i]};
+      planG.add(bar); planBars.push(bar);
+    }
+    // base
+    const base=new THREE.Mesh(new THREE.BoxGeometry(20,0.12,3),
+      new THREE.MeshBasicMaterial({color:0x5a5446,transparent:true,opacity:0}));
+    base.position.set(0,-4.5,0); base.name='planBase'; planG.add(base);
+  })();
+
+  // ===================== ESCALERA UNICORNIO =====================
+  const stairG=new THREE.Group(); scene.add(stairG);
+  const steps=[];
+  (function(){
+    const data=[['HOY',2.2],['2029',5.0],['2030',8.0],['2031',12.5]];
+    const cols=[C_AMBER,C_AMBER,C_AMBERH,C_GOLD];
+    for(let i=0;i<data.length;i++){
+      const w=3.4,h=data[i][1];
+      const m=new THREE.MeshStandardMaterial({color:cols[i],emissive:cols[i],
+        emissiveIntensity:i===3?0.95:0.4,roughness:0.4,metalness:0.3,transparent:true,opacity:0});
+      const st=new THREE.Mesh(new THREE.BoxGeometry(w,1,w),m);
+      st.position.set(-7.5+i*4.6,-4,0);
+      st.userData={fullH:h,top:i===3};
+      stairG.add(st); steps.push(st);
+    }
+    // "cima" — icosaedro brillante (el unicornio simbólico)
+    const peak=new THREE.Mesh(new THREE.IcosahedronGeometry(1.5,1),
+      new THREE.MeshStandardMaterial({color:C_GOLD,emissive:C_GOLD,emissiveIntensity:2.6,roughness:0.2,transparent:true,opacity:0}));
+    peak.name='peak';
+    stairG.add(peak);
+    const peakGlow=new THREE.Mesh(new THREE.SphereGeometry(3,16,16),
+      new THREE.MeshBasicMaterial({color:C_GOLD,transparent:true,opacity:0}));
+    peakGlow.name='peakGlow'; stairG.add(peakGlow);
+  })();
+
+  // ===================== ESTADO / SCROLL =====================
+  let target=0,prog=0;
+  function onScroll(){
+    const max=document.body.scrollHeight-innerHeight;
+    target=max>0?clamp(window.scrollY/max,0,1):0;
+  }
+  window.addEventListener('scroll',onScroll,{passive:true}); onScroll();
+  let mx=0,my=0;
+  window.addEventListener('pointermove',e=>{mx=(e.clientX/innerWidth-0.5);my=(e.clientY/innerHeight-0.5);});
+  const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in');});},{threshold:0.22});
+  document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+  // rangos de fase (12 escenas, progress 0-1)
+  const R={
+    hero:[0.00,0.05], origin:[0.04,0.12], design:[0.11,0.20], material:[0.19,0.28],
+    twin:[0.27,0.37], layers:[0.37,0.47], net:[0.47,0.56], disr:[0.56,0.66],
+    map:[0.66,0.76], plan:[0.76,0.85], uni:[0.85,0.94], os:[0.94,1.00]
+  };
+
+  // ===================== UPDATE =====================
+  function updateScene(p,time){
+    const fOrigin=seg(p,R.origin[0],R.origin[1]);
+    const fDesign=seg(p,R.design[0],R.design[1]);
+    const fMat=seg(p,R.material[0],R.material[1]);
+    const fTwin=seg(p,R.twin[0],R.twin[1]);
+    const fLayers=seg(p,R.layers[0],R.layers[1]);
+    const fNet=seg(p,R.net[0],R.net[1]);
+    const fDisr=seg(p,R.disr[0],R.disr[1]);
+    const fMap=seg(p,R.map[0],R.map[1]);
+    const fPlan=seg(p,R.plan[0],R.plan[1]);
+    const fUni=seg(p,R.uni[0],R.uni[1]);
+    const fOS=seg(p,R.os[0],R.os[1]);
+
+    // ---- CÁMARA ----
+    let cx,cy,cz,lookY=0,lookZ=0;
+    if(p<R.layers[0]){                       // órbita del activo
+      const o=p/R.layers[0];
+      const ang=lerp(-0.5,0.7,ease(o)),dist=lerp(16,11,ease(o));
+      cx=Math.sin(ang)*dist; cz=Math.cos(ang)*dist; cy=lerp(2.6,1.7,o);
+    } else if(p<R.net[0]){                   // túnel de anillos
+      const o=seg(p,R.layers[0],R.net[0]);
+      cx=0; cy=lerp(1.7,0.5,o); cz=lerp(11,-24,ease(o)); lookZ=cz-12;
+    } else if(p<R.disr[0]){                  // ciudad — alejar y elevar
+      const o=seg(p,R.net[0],R.disr[0]);
+      cx=lerp(0,8,ease(o)); cy=lerp(0.5,15,ease(o)); cz=lerp(-24,34,ease(o));
+    } else {                                  // escenas 7-11: órbita media mirando al origen
+      const o=seg(p,R.disr[0],1.0);
+      const ang=lerp(0.4,2.4,o);
+      cx=Math.sin(ang)*17;
+      cz=Math.cos(ang)*17;
+      cy=lerp(14, fUni>0.1?5:8, seg(p,R.disr[0],R.uni[0]));
+      if(p>R.uni[0]) cy=lerp(8,7,fUni);
+      if(p>R.os[0]){ cy=lerp(7,20,fOS); cx=Math.sin(ang)*lerp(17,30,fOS); cz=Math.cos(ang)*lerp(17,30,fOS); }
+    }
+    camera.position.x+=(cx+mx*2.6-camera.position.x)*0.055;
+    camera.position.y+=(cy-my*1.7-camera.position.y)*0.055;
+    camera.position.z+=(cz-camera.position.z)*0.055;
+    camera.lookAt(0,lookY,lookZ);
+
+    stars.rotation.y=time*0.012; stars.rotation.x=time*0.005;
+
+    // ---- CIRCUITO ----
+    const circOp=1-seg(p,R.material[0],R.material[1]+0.04);
+    circuit.children.forEach(ch=>{ if(ch.type==='Line'&&ch.material) ch.material.opacity=0.22*circOp; });
+    pulses.forEach(pl=>{
+      pl.userData.t+=pl.userData.speed; if(pl.userData.t>1)pl.userData.t-=1;
+      const d=(pl.userData.t*84)-42;
+      if(pl.userData.axis==='x')pl.position.set(pl.userData.lane,-6,d);
+      else pl.position.set(d,-6,pl.userData.lane);
+      pl.material.opacity=circOp; pl.visible=circOp>0.02;
+    });
+    circuit.visible=circOp>0.02;
+
+    // ---- ACTIVO ----
+    const assetActive=p<R.net[0]+0.04;
+    asset.visible=assetActive;
+    if(assetActive){
+      asset.position.y=Math.sin(time*0.6)*0.18;
+      asset.rotation.y=time*0.18+p*2;
+      const coreOp=1-fMat;
+      core.material.emissiveIntensity=1.6+pulse01(p,R.origin[0],R.origin[1])*1.4+Math.sin(time*3)*0.3;
+      core.scale.setScalar(lerp(0.4,1,fOrigin)*(1-fMat*0.7));
+      core.visible=coreOp>0.02;
+      coreGlow.material.opacity=0.18*coreOp*(0.7+Math.sin(time*2)*0.3);
+      coreGlow.scale.setScalar(lerp(0.6,1.4,fOrigin)+Math.sin(time*2)*0.15);
+      coreGlow.visible=coreOp>0.02;
+      coreLight.intensity=lerp(0,3.5,fOrigin)*(1-fMat)+(fTwin>0?1:0);
+      wire.material.opacity=(fDesign*(1-fMat))*0.9;
+      wire.scale.setScalar(lerp(0.3,1,ease(fDesign)));
+      wire.rotation.x=time*0.3; wire.rotation.z=time*0.2;
+      wire.visible=wire.material.opacity>0.02;
+      const split=ease(fTwin)*2.6;
+      solid.material.opacity=fMat; solid.material.emissiveIntensity=0.22+pulse01(p,R.material[0],R.material[1])*0.5;
+      solid.scale.setScalar(lerp(0.2,1,ease(fMat))); solid.position.x=-split; solid.visible=fMat>0.02;
+      solidEdges.material.opacity=fMat; solidEdges.scale.copy(solid.scale); solidEdges.position.x=-split; solidEdges.visible=fMat>0.02;
+      twin.material.opacity=fTwin*0.95; twin.position.x=split; twin.scale.setScalar(lerp(0.6,1,ease(fTwin)));
+      twin.rotation.y=-time*0.4; twin.visible=fTwin>0.02;
+      twinNodes.children.forEach((nd,i)=>nd.material.opacity=fTwin*(0.6+Math.sin(time*3+i)*0.4));
+      neuron.material.opacity=fTwin; neuron.position.x=-split;
+      neuron.scale.setScalar((0.7+pulse01((time*0.4)%1,0,1)*0.6)*Math.max(0.3,fTwin));
+      neuron.visible=fTwin>0.02;
+      if(fTwin>0.05&&split>0.05){
+        linkGeo.setFromPoints([new THREE.Vector3(-split,0,0),new THREE.Vector3(split,0,0)]);
+        linkGeo.attributes.position.needsUpdate=true;
+        link.material.opacity=fTwin*(0.5+Math.sin(time*5)*0.5); link.visible=true;
+      } else link.visible=false;
+    }
+
+    // ---- 7 ANILLOS ----
+    ringGroup.visible=fLayers>0.02 && p<R.net[0]+0.03;
+    if(ringGroup.visible){
+      rings.forEach((r,i)=>{
+        const near=1-clamp(Math.abs(camera.position.z-r.position.z)/10,0,1);
+        r.material.opacity=fLayers*0.85;
+        r.material.emissiveIntensity=0.3+near*2.6;
+        r.scale.setScalar(1+near*0.13+Math.sin(time*1.5+i)*0.02);
+        r.rotation.z=time*0.25*(i%2?1:-1);
+      });
+    }
+
+    // ---- CIUDAD ----
+    const cityOp=clamp(fNet - seg(p,R.disr[0]+0.02,R.disr[1]) + fOS, 0, 1);
+    city.visible=cityOp>0.02;
+    if(city.visible){
+      cityCubes.forEach((c,i)=>{
+        c.material.opacity=cityOp*0.92;
+        c.material.emissiveIntensity=0.28+pulse01((time*0.25+c.userData.ph/6)%1,0,1)*0.6;
+        c.position.y=c.userData.baseY+Math.sin(time*0.8+c.userData.ph)*0.12;
+        const grow=ease(clamp((Math.max(fNet,fOS)*1.4)-(i/cityCubes.length),0,1));
+        c.scale.y=c.userData.baseSY*grow;
+      });
+      const nl=city.getObjectByName('netLines');
+      if(nl)nl.material.opacity=cityOp*0.4*(0.6+Math.sin(time*1.5)*0.4);
+      city.rotation.y=time*0.03;
+    }
+    blueLight.intensity=1.2+Math.max(fNet,fOS)*2.2;
+    keyLight.intensity=2.4-fNet*0.6;
+
+    // ---- MODELOS DISRUPTIVOS ----
+    const disrOp=fDisr*(1-seg(p,R.map[0]+0.01,R.map[0]+0.05));
+    disrupt.visible=disrOp>0.02;
+    if(disrupt.visible){
+      disrupt.rotation.y=time*0.12;
+      disrItems.forEach((it,i)=>{
+        it.userData.oct.material.opacity=disrOp;
+        it.userData.oct.material.emissiveIntensity=0.7+pulse01((time*0.3+i*0.25)%1,0,1)*0.9;
+        it.userData.oct.rotation.x=time*0.5; it.userData.oct.rotation.y=time*0.4;
+        it.userData.cage.material.opacity=disrOp*0.8;
+        it.userData.cage.rotation.x=-time*0.3; it.userData.cage.rotation.z=time*0.25;
+        it.position.y=Math.sin(time*0.7+i)*0.5;
+      });
+      const dr=disrupt.getObjectByName('dRing');
+      if(dr)dr.material.opacity=disrOp*0.5;
+    }
+
+    // ---- MAPA ----
+    const mapOp=fMap*(1-seg(p,R.plan[0]+0.01,R.plan[0]+0.05));
+    mapG.visible=mapOp>0.02;
+    if(mapG.visible){
+      mapG.rotation.z=Math.sin(time*0.15)*0.06;
+      mapG.children.forEach(ch=>{ if(ch.type==='Line'&&ch.material&&ch.name!=='mapLines') ch.material.opacity=mapOp*0.4; });
+      const ml=mapG.getObjectByName('mapLines');
+      if(ml)ml.material.opacity=mapOp*0.55*(0.6+Math.sin(time*2)*0.4);
+      mapMarkers.forEach((mk,i)=>{
+        const appear=ease(clamp((fMap*1.5)-(i/mapMarkers.length)*0.8,0,1));
+        mk.pin.material.opacity=mapOp*appear*0.8;
+        mk.head.material.opacity=mapOp*appear;
+        mk.head.material.emissiveIntensity=1.2+pulse01((time*0.4+mk.ph)%1,0,1)*1.4;
+        mk.head.scale.setScalar(appear*(0.9+Math.sin(time*2+mk.ph)*0.15));
+      });
+    }
+
+    // ---- PLAN (barras) ----
+    const planOp=fPlan*(1-seg(p,R.uni[0]+0.01,R.uni[0]+0.05));
+    planG.visible=planOp>0.02;
+    if(planG.visible){
+      planG.rotation.y=Math.sin(time*0.12)*0.12 - 0.25;
+      planBars.forEach((b,i)=>{
+        const grow=ease(clamp((fPlan*1.7)-(i/planBars.length),0,1));
+        const h=Math.max(0.05,b.userData.fullH*grow);
+        b.scale.y=h; b.position.y=-4+h/2;
+        b.material.opacity=planOp;
+        b.material.emissiveIntensity=0.35+pulse01((time*0.3+i*0.15)%1,0,1)*0.5;
+      });
+      const pb=planG.getObjectByName('planBase');
+      if(pb)pb.material.opacity=planOp*0.5;
+    }
+
+    // ---- UNICORNIO (escalera) ----
+    const uniOp=fUni*(1-fOS);
+    stairG.visible=uniOp>0.02;
+    if(stairG.visible){
+      stairG.rotation.y=Math.sin(time*0.12)*0.12 - 0.2;
+      steps.forEach((s,i)=>{
+        const grow=ease(clamp((fUni*1.8)-(i/steps.length),0,1));
+        const h=Math.max(0.05,s.userData.fullH*grow);
+        s.scale.y=h; s.position.y=-4+h/2;
+        s.material.opacity=uniOp;
+        if(s.userData.top) s.material.emissiveIntensity=0.7+pulse01((time*0.5)%1,0,1)*1.6;
+      });
+      const peak=stairG.getObjectByName('peak'),pg=stairG.getObjectByName('peakGlow');
+      const peakAppear=ease(clamp(fUni*1.6-0.7,0,1));
+      if(peak){
+        peak.material.opacity=uniOp*peakAppear;
+        peak.position.set(-7.5+3*4.6, -4+steps[3].userData.fullH+2.6, 0);
+        peak.rotation.x=time*0.6; peak.rotation.y=time*0.5;
+        peak.material.emissiveIntensity=2.2+Math.sin(time*3)*0.8;
+      }
+      if(pg){
+        pg.material.opacity=uniOp*peakAppear*0.22*(0.7+Math.sin(time*2)*0.3);
+        pg.position.copy(peak.position); pg.scale.setScalar(1+Math.sin(time*2)*0.2);
+      }
+      goldLight.intensity=uniOp*peakAppear*4;
+      goldLight.position.set(-7.5+3*4.6,8,4);
+    } else goldLight.intensity=lerp(goldLight.intensity,0,0.1);
+
+    // ---- rail ----
+    const stage=clamp(Math.floor(p*NCH*0.999),0,NCH-1);
+    dots.forEach((d,i)=>{ d.classList.toggle('on',i===stage); d.classList.toggle('done',i<stage); });
+  }
+
+  // ===================== LOOP =====================
+  let t0=performance.now();
+  function animate(){
+    requestAnimationFrame(animate);
+    const time=(performance.now()-t0)/1000;
+    prog+=(target-prog)*0.07;
+    updateScene(prog,time);
+    renderer.render(scene,camera);
+  }
+  animate();
+
+  window.addEventListener('resize',()=>{
+    camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix();
+    renderer.setSize(innerWidth,innerHeight);
+  });
+
+  setTimeout(()=>{
+    loader.classList.add('gone');
+    document.querySelectorAll('#hero .reveal').forEach(el=>el.classList.add('in'));
+  },900);
+})();
+</script>
+</body>
+</html>

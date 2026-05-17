@@ -1,0 +1,362 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CUEVA · Dossier del proyecto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Archivo+Expanded:wght@600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --concrete:#E9E5DA;--concrete-2:#DDD8C9;--paper:#F4F1E7;
+  --ink:#16140E;--ink-2:#3D3A2E;--ink-3:#6E6A58;
+  --amber:#DC5212;--amber-hi:#FF6B1F;--blue:#15568C;--blue-hi:#2E86DE;--gold:#E8A33D;
+  --line:rgba(22,20,14,.16);--line-soft:rgba(22,20,14,.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Archivo',sans-serif;background:var(--ink);color:var(--concrete);
+  -webkit-font-smoothing:antialiased;overflow-x:hidden;line-height:1.5}
+::selection{background:var(--amber);color:var(--paper)}
+.mono{font-family:'Space Mono',monospace}
+h1,h2,h3{font-family:'Archivo Expanded','Archivo',sans-serif;font-weight:800;letter-spacing:-.015em;line-height:1.03}
+
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.5;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E")}
+.gridbg{position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:50px 50px}
+
+/* boot */
+#boot{position:fixed;inset:0;z-index:9999;background:var(--ink);display:flex;flex-direction:column;
+  justify-content:center;padding:0 8vw;transition:opacity .6s,transform .9s cubic-bezier(.7,0,.2,1)}
+#boot.done{opacity:0;transform:scale(1.08);pointer-events:none}
+#boot .bk{font-family:'Space Mono',monospace;font-size:12px;letter-spacing:.28em;color:var(--amber-hi);margin-bottom:28px}
+#boot .bl{font-family:'Space Mono',monospace;font-size:13px;color:#807c6a;margin:5px 0;opacity:0}
+#boot .bl.in{opacity:1}#boot .bl .ok{color:#9bbf5a;float:right}
+#boot .bb{margin-top:28px;height:2px;background:rgba(255,255,255,.1);width:min(540px,80vw);overflow:hidden}
+#boot .bb::after{content:"";display:block;height:100%;width:0;background:var(--amber);animation:bf 2.4s cubic-bezier(.6,0,.3,1) forwards}
+@keyframes bf{to{width:100%}}
+
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;justify-content:space-between;align-items:center;
+  padding:16px 32px;background:rgba(22,20,14,.82);backdrop-filter:blur(14px);border-bottom:1px solid rgba(255,255,255,.08)}
+nav .logo{font-family:'Archivo Expanded';font-weight:900;font-size:20px;letter-spacing:.04em;white-space:nowrap}
+nav .logo b{color:var(--amber-hi)}
+nav .ntag{font-family:'Space Mono',monospace;font-size:11px;color:#807c6a;letter-spacing:.1em}
+
+#hero{min-height:100vh;display:flex;flex-direction:column;justify-content:center;padding:140px 32px 90px;position:relative;z-index:2}
+.wrap{max-width:1320px;margin:0 auto;width:100%}
+.hc{position:absolute;font-family:'Space Mono',monospace;font-size:11px;color:#56523f;letter-spacing:.12em}
+.hey{display:inline-flex;align-items:center;gap:11px;border:1px solid rgba(255,255,255,.2);padding:9px 16px;
+  font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--amber-hi);margin-bottom:38px}
+.hey .dot{width:7px;height:7px;background:var(--amber);border-radius:50%;animation:bk 1.5s infinite}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.2}}
+#hero h1{font-size:clamp(56px,13vw,200px);text-transform:uppercase;line-height:.84;letter-spacing:-.04em;white-space:nowrap}
+#hero h1 .l{display:block;overflow:hidden}
+#hero h1 .l span{display:block;white-space:nowrap;transform:translateY(110%);animation:rise 1.05s cubic-bezier(.16,1,.3,1) forwards}
+#hero h1 .l:nth-child(2) span{animation-delay:.13s}
+@keyframes rise{to{transform:none}}
+#hero h1 .am{color:var(--amber)}
+.htag{margin-top:36px;font-size:clamp(17px,2.1vw,25px);max-width:760px;color:#c8c4b4;font-weight:500;opacity:0;animation:fd 1s ease .8s forwards}
+.htag b{color:var(--concrete);font-weight:700}
+@keyframes fd{to{opacity:1}}
+.hstats{margin-top:48px;display:flex;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.16);opacity:0;animation:fd 1s ease 1.1s forwards}
+.hstats .hs{padding:20px 34px 20px 0;border-right:1px solid rgba(255,255,255,.1)}.hstats .hs:last-child{border-right:0}
+.hstats .hv{font-family:'Archivo Expanded';font-weight:900;font-size:clamp(20px,2.3vw,30px);color:var(--amber-hi)}
+.hstats .hl{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:.1em;color:#807c6a;margin-top:5px}
+.scue{position:absolute;bottom:26px;left:50%;transform:translateX(-50%);font-family:'Space Mono',monospace;
+  font-size:10px;letter-spacing:.22em;color:#56523f;display:flex;flex-direction:column;align-items:center;gap:9px}
+.scue .arw{width:1px;height:34px;background:linear-gradient(var(--amber),transparent);animation:cue 1.8s infinite}
+@keyframes cue{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform:scaleY(1);transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+
+.rv{opacity:0;transform:translateY(38px);transition:opacity 1s cubic-bezier(.16,1,.3,1),transform 1s cubic-bezier(.16,1,.3,1)}
+.rv.show{opacity:1;transform:none}
+.d1{transition-delay:.1s}.d2{transition-delay:.22s}.d3{transition-delay:.34s}.d4{transition-delay:.46s}
+
+section{position:relative;z-index:2;padding:110px 32px}
+.tag{display:flex;align-items:baseline;gap:14px;margin-bottom:40px;font-family:'Space Mono',monospace;
+  font-size:12px;letter-spacing:.2em;color:var(--amber-hi)}
+.tag .c{font-weight:700}.tag .ln{flex:1;height:1px;background:currentColor;opacity:.35}
+
+/* qué es */
+.qe{display:grid;grid-template-columns:1.15fr .85fr;gap:60px;align-items:center}
+.qe h2{font-size:clamp(30px,4vw,54px);text-transform:uppercase}.qe h2 .am{color:var(--amber)}
+.qe p{margin-top:22px;font-size:16px;color:#c8c4b4;line-height:1.65}.qe p b{color:var(--concrete)}
+.qev{aspect-ratio:1/1;border:1px solid rgba(255,255,255,.16);position:relative;
+  background:repeating-linear-gradient(45deg,transparent,transparent 24px,rgba(255,255,255,.03) 24px,rgba(255,255,255,.03) 25px)}
+.qev .cr{position:absolute;width:14px;height:14px;border:2px solid var(--amber)}
+.qev .cr.tl{top:-1px;left:-1px;border-right:0;border-bottom:0}.qev .cr.tr{top:-1px;right:-1px;border-left:0;border-bottom:0}
+.qev .cr.bl{bottom:-1px;left:-1px;border-right:0;border-top:0}.qev .cr.br{bottom:-1px;right:-1px;border-left:0;border-top:0}
+
+/* DESTINOS — el corazón */
+#destinos{background:var(--concrete);color:var(--ink)}
+#destinos .gl{position:absolute;inset:0;pointer-events:none;background-image:
+  linear-gradient(var(--line-soft) 1px,transparent 1px),linear-gradient(90deg,var(--line-soft) 1px,transparent 1px);background-size:46px 46px}
+#destinos .tag{color:var(--amber)}
+#destinos h2{font-size:clamp(34px,5vw,70px);text-transform:uppercase}#destinos h2 .am{color:var(--amber)}
+.gates{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:54px}
+.gate{position:relative;text-decoration:none;color:var(--ink);display:flex;flex-direction:column;
+  min-height:560px;border:1px solid var(--line);background:var(--paper);overflow:hidden;
+  transition:transform .45s cubic-bezier(.16,1,.3,1),box-shadow .45s}
+.gate:hover{transform:translateY(-12px);box-shadow:0 38px 70px rgba(22,20,14,.28)}
+.gate .gv{height:280px;position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+.gate .gv svg{width:100%;height:100%;display:block}
+.gate .gtag{position:absolute;top:16px;right:16px;z-index:3;font-family:'Space Mono',monospace;font-size:10px;
+  background:var(--ink);color:var(--paper);padding:5px 11px;letter-spacing:.06em}
+.gate .gb{padding:30px 32px;display:flex;flex-direction:column;flex:1}
+.gate .gno{font-family:'Space Mono',monospace;font-size:12px;color:var(--amber);letter-spacing:.12em}
+.gate h3{font-size:28px;text-transform:uppercase;margin:14px 0 10px;line-height:1.05}
+.gate .gd{font-size:14px;color:var(--ink-2);line-height:1.62;flex:1}
+.gate .gmeta{margin-top:18px;display:flex;flex-wrap:wrap;gap:6px}
+.gate .gmeta span{font-family:'Space Mono',monospace;font-size:10px;border:1px solid var(--line);padding:5px 9px;color:var(--ink-3)}
+.gate .gcta{margin-top:20px;display:flex;align-items:center;justify-content:space-between;padding-top:18px;
+  border-top:1px solid var(--line);font-family:'Space Mono',monospace;font-size:13px;font-weight:700;
+  color:var(--amber);letter-spacing:.06em}
+.gate .gcta .ar{font-size:24px;transition:transform .35s}
+.gate:hover .gcta .ar{transform:translateX(10px)}
+.gate.exp{background:var(--ink);color:var(--concrete)}
+.gate.exp .gv{border-color:rgba(255,255,255,.12)}
+.gate.exp h3{color:var(--concrete)}
+.gate.exp .gd{color:#9b9684}
+.gate.exp .gmeta span{border-color:rgba(255,255,255,.16);color:#9b9684}
+.gate.exp .gcta{border-color:rgba(255,255,255,.14)}
+
+/* contenido de carpeta */
+.folder{margin-top:54px;border:1px dashed var(--line);padding:0}
+.folder .fh{display:flex;align-items:center;gap:14px;padding:18px 24px;border-bottom:1px dashed var(--line)}
+.folder .fh .fi{width:38px;height:38px;border:1px solid var(--amber);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.folder .fh .ft{font-family:'Space Mono',monospace;font-size:13px;color:var(--ink);letter-spacing:.04em}
+.folder .fh .ft b{color:var(--amber)}
+.folder .fl{display:grid;grid-template-columns:repeat(3,1fr)}
+.folder .fcol{padding:22px 24px;border-right:1px dashed var(--line)}
+.folder .fcol:last-child{border-right:0}
+.folder .fcol h4{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--amber);margin-bottom:12px}
+.folder .fcol ul{list-style:none}
+.folder .fcol li{font-family:'Space Mono',monospace;font-size:11px;color:var(--ink-2);padding:5px 0;display:flex;gap:8px}
+.folder .fcol li::before{content:"·";color:var(--amber)}
+
+footer{position:relative;z-index:2;background:var(--ink);color:#807c6a;padding:54px 32px;text-align:center}
+footer .fb{font-family:'Archivo Expanded';font-weight:900;font-size:clamp(30px,5vw,62px);text-transform:uppercase;color:var(--concrete);white-space:nowrap}
+footer .fb b{color:var(--amber)}
+footer .fl2{margin-top:18px;font-family:'Space Mono',monospace;font-size:11px;letter-spacing:.12em}
+
+@media(max-width:980px){
+  section{padding:80px 20px}
+  .qe{grid-template-columns:1fr;gap:34px}
+  .gates{grid-template-columns:1fr}
+  .gate{min-height:auto}
+  .folder .fl{grid-template-columns:1fr}
+  .folder .fcol{border-right:0;border-bottom:1px dashed var(--line)}
+  .hstats .hs{padding:16px 22px 16px 0}
+}
+@media print{#boot,nav,.scue,.grain{display:none}section{page-break-after:always}}
+</style>
+</head>
+<body>
+<div class="gridbg"></div>
+<div class="grain"></div>
+
+<div id="boot">
+  <div class="bk">// CUEVA OS · INICIANDO DOSSIER DEL PROYECTO</div>
+  <div class="bl" data-i="0">cargando sistema operativo de la construcción<span class="ok">OK</span></div>
+  <div class="bl" data-i="1">dossier · BP 3 años · escenario base<span class="ok">OK</span></div>
+  <div class="bl" data-i="2">dossier · BP 5 años · camino al unicornio<span class="ok">OK</span></div>
+  <div class="bl" data-i="3">experiencia inmersiva 3D · el viaje del activo<span class="ok">OK</span></div>
+  <div class="bl" data-i="4">entorno completo del proyecto<span class="ok">LISTO</span></div>
+  <div class="bb"></div>
+</div>
+
+<nav><div class="logo">CUE<b>V</b>A</div><div class="ntag">DOSSIER DEL PROYECTO · MAYO 2026</div></nav>
+
+<!-- HERO -->
+<section id="hero">
+  <span class="hc" style="top:118px;right:32px">SISTEMA OPERATIVO · CONSTRUCCIÓN</span>
+  <span class="hc" style="bottom:92px;right:32px">ENTORNO COMPLETO DEL PROYECTO</span>
+  <div class="wrap">
+    <div class="hey"><span class="dot"></span>DOSSIER DE PROYECTO · CONFIDENCIAL</div>
+    <h1>
+      <span class="l"><span>CUE<span class="am">V</span>A</span></span>
+      <span class="l"><span>el dossier</span></span>
+    </h1>
+    <p class="htag">El sistema operativo de la construcción. Un único punto de entrada a todo el proyecto: <b>dos planes de negocio</b> y una <b>experiencia inmersiva</b> para entender el modelo completo.</p>
+    <div class="hstats">
+      <div class="hs"><div class="hv">14 €</div><div class="hl">ROYALTY POR m² DE ACTIVO</div></div>
+      <div class="hs"><div class="hv">7 CAPAS</div><div class="hl">DE INGRESO POR ACTIVO</div></div>
+      <div class="hs"><div class="hv">2026</div><div class="hl">AÑO DE SALIDA A MERCADO</div></div>
+      <div class="hs"><div class="hv">🦄</div><div class="hl">HORIZONTE 5 AÑOS · UNICORNIO</div></div>
+    </div>
+  </div>
+  <div class="scue"><span>EXPLORAR</span><span class="arw"></span></div>
+</section>
+
+<!-- QUÉ ES -->
+<section>
+  <div class="wrap">
+    <div class="tag rv"><span class="c">[ 00 ]</span><span>EL PROYECTO EN UNA IDEA</span><span class="ln"></span></div>
+    <div class="qe">
+      <div>
+        <h2 class="rv d1">No construimos cosas.<br><span class="am">Emitimos activos.</span></h2>
+        <p class="rv d2">CUEVA es el <b>sistema operativo de la construcción</b>: una red donde fabricantes, montadores, arquitectos, promotores, administraciones y el cliente final operan sobre la misma capa digital. Cada elemento físico nace con un gemelo digital vinculado — <b>si no está en el sistema, no existe.</b></p>
+        <p class="rv d3">Este es el <b>dossier completo del proyecto</b>. Desde aquí accedes a los dos planes de negocio — el escenario base a 3 años y el camino al unicornio a 5 años — y a la experiencia inmersiva que recorre el modelo de principio a fin.</p>
+      </div>
+      <div class="qev rv d2">
+        <span class="cr tl"></span><span class="cr tr"></span><span class="cr bl"></span><span class="cr br"></span>
+        <svg viewBox="0 0 380 380">
+          <polygon points="110,80 200,40 290,80 200,120" fill="none" stroke="#2E86DE" stroke-width="1.6"/>
+          <polygon points="110,80 200,120 200,150 110,110" fill="none" stroke="#2E86DE" stroke-width="1.6"/>
+          <polygon points="290,80 200,120 200,150 290,110" fill="none" stroke="#2E86DE" stroke-width="1.6"/>
+          <circle cx="110" cy="80" r="3.5" fill="#2E86DE"/><circle cx="200" cy="40" r="3.5" fill="#2E86DE"/>
+          <circle cx="290" cy="80" r="3.5" fill="#2E86DE"/><circle cx="200" cy="120" r="3.5" fill="#2E86DE"/>
+          <text x="306" y="64" font-family="'Space Mono',monospace" font-size="11" fill="#2E86DE">DIGITAL</text>
+          <polygon points="110,230 200,185 290,230 200,275" fill="#DC5212"/>
+          <polygon points="110,230 200,275 200,340 110,295" fill="#A83D0C"/>
+          <polygon points="290,230 200,275 200,340 290,295" fill="#C04A10"/>
+          <circle cx="200" cy="230" r="9" fill="#16140E" stroke="#FF6B1F" stroke-width="2"/>
+          <circle cx="200" cy="230" r="9" fill="none" stroke="#FF6B1F" stroke-width="1.2">
+            <animate attributeName="r" values="9;30;9" dur="2.8s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.8;0;0.8" dur="2.8s" repeatCount="indefinite"/></circle>
+          <text x="306" y="244" font-family="'Space Mono',monospace" font-size="11" fill="#DC5212">FÍSICO</text>
+          <line x1="200" y1="150" x2="200" y2="221" stroke="#FF6B1F" stroke-width="2" stroke-dasharray="4 5">
+            <animate attributeName="stroke-dashoffset" values="18;0" dur="0.7s" repeatCount="indefinite"/></line>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DESTINOS -->
+<section id="destinos">
+  <div class="gl"></div>
+  <div class="wrap" style="position:relative;z-index:2">
+    <div class="tag rv"><span class="c">[ ·· ]</span><span>TRES DESTINOS · UN PROYECTO</span><span class="ln"></span></div>
+    <h2 class="rv d1">Elige por dónde<br><span class="am">entrar.</span></h2>
+
+    <div class="gates">
+      <!-- BP 3 AÑOS -->
+      <a class="gate rv d1" href="Bp 3 años/index.html">
+        <span class="gtag">2026-2029</span>
+        <div class="gv"><svg viewBox="0 0 380 280" preserveAspectRatio="xMidYMid slice">
+          <rect width="380" height="280" fill="#16140E"/>
+          <g stroke="rgba(255,255,255,.06)" stroke-width="1">
+            <line x1="0" y1="70" x2="380" y2="70"/><line x1="0" y1="140" x2="380" y2="140"/><line x1="0" y1="210" x2="380" y2="210"/>
+            <line x1="95" y1="0" x2="95" y2="280"/><line x1="190" y1="0" x2="190" y2="280"/><line x1="285" y1="0" x2="285" y2="280"/>
+          </g>
+          <text x="32" y="90" font-family="'Archivo Expanded',sans-serif" font-weight="900" font-size="44" fill="#F4F1E7">BP</text>
+          <text x="32" y="146" font-family="'Archivo Expanded',sans-serif" font-weight="900" font-size="44" fill="#DC5212">3 AÑOS</text>
+          <text x="32" y="180" font-family="'Space Mono',monospace" font-size="11" fill="#807c6a">escenario base · comprometible</text>
+          <g transform="translate(228,232)">
+            <rect x="0" y="-16" width="20" height="16" fill="#DC5212"/>
+            <rect x="30" y="-36" width="20" height="36" fill="#DC5212"/>
+            <rect x="60" y="-64" width="20" height="64" fill="#FF6B1F"/>
+            <rect x="90" y="-98" width="20" height="98" fill="#FF6B1F"/>
+          </g>
+        </svg></div>
+        <div class="gb">
+          <div class="gno">[ 01 ] · PLAN DE NEGOCIO</div>
+          <h3>El escenario<br>base</h3>
+          <p class="gd">La foto comprometible del proyecto a 3 años: 2026 de salida a mercado, plan pleno 2027-2029. Break-even en 2028, €33M de ingresos y ~€225M de valor al cierre. Índice, presentación, exposición del modelo, plan financiero.</p>
+          <div class="gmeta"><span>PRESENTACIÓN</span><span>MODELO</span><span>PLAN</span><span>+ XLSX</span></div>
+          <div class="gcta"><span>ABRIR DOSSIER 3 AÑOS</span><span class="ar">→</span></div>
+        </div>
+      </a>
+
+      <!-- BP 5 AÑOS -->
+      <a class="gate rv d2" href="Bp 5 años/index.html">
+        <span class="gtag">2026-2031 · 🦄</span>
+        <div class="gv"><svg viewBox="0 0 380 280" preserveAspectRatio="xMidYMid slice">
+          <rect width="380" height="280" fill="#16140E"/>
+          <g stroke="rgba(255,255,255,.06)" stroke-width="1">
+            <line x1="0" y1="70" x2="380" y2="70"/><line x1="0" y1="140" x2="380" y2="140"/><line x1="0" y1="210" x2="380" y2="210"/>
+            <line x1="95" y1="0" x2="95" y2="280"/><line x1="190" y1="0" x2="190" y2="280"/><line x1="285" y1="0" x2="285" y2="280"/>
+          </g>
+          <text x="32" y="90" font-family="'Archivo Expanded',sans-serif" font-weight="900" font-size="44" fill="#F4F1E7">BP</text>
+          <text x="32" y="146" font-family="'Archivo Expanded',sans-serif" font-weight="900" font-size="44" fill="#E8A33D">5 AÑOS</text>
+          <text x="32" y="180" font-family="'Space Mono',monospace" font-size="11" fill="#807c6a">camino al unicornio</text>
+          <g transform="translate(206,238)">
+            <rect x="0" y="-14" width="16" height="14" fill="#DC5212"/>
+            <rect x="22" y="-26" width="16" height="26" fill="#DC5212"/>
+            <rect x="44" y="-42" width="16" height="42" fill="#DC5212"/>
+            <rect x="66" y="-66" width="16" height="66" fill="#FF6B1F"/>
+            <rect x="88" y="-98" width="16" height="98" fill="#FF6B1F"/>
+            <rect x="110" y="-138" width="16" height="138" fill="#E8A33D"/>
+          </g>
+          <text x="300" y="78" font-size="30">🦄</text>
+        </svg></div>
+        <div class="gb">
+          <div class="gno">[ 02 ] · PLAN DE NEGOCIO</div>
+          <h3>El camino al<br>unicornio</h3>
+          <p class="gd">El plan a 5 años con el objetivo explícito de cruzar los €1.000M: 2027-2031 ejecutando las derivadas — red distribuida, pago por uso, mercado financiero, internacional. €142M de ingresos y ~€1.175M de valor en 2031.</p>
+          <div class="gmeta"><span>PRESENTACIÓN</span><span>MODELO</span><span>PLAN</span><span>+ XLSX</span></div>
+          <div class="gcta"><span>ABRIR DOSSIER 5 AÑOS</span><span class="ar">→</span></div>
+        </div>
+      </a>
+
+      <!-- EXPERIENCIA -->
+      <a class="gate exp rv d3" href="Originales/CUEVA_EXPERIENCIA.html">
+        <span class="gtag">3D · INMERSIVO</span>
+        <div class="gv"><svg viewBox="0 0 380 280" preserveAspectRatio="xMidYMid slice">
+          <rect width="380" height="280" fill="#0a0907"/>
+          <circle cx="190" cy="140" r="70" fill="none" stroke="#2E86DE" stroke-width="1.2" opacity="0.5"/>
+          <circle cx="190" cy="140" r="48" fill="none" stroke="#DC5212" stroke-width="1.2" opacity="0.6"/>
+          <circle cx="190" cy="140" r="9" fill="#FF6B1F"/>
+          <circle cx="190" cy="140" r="9" fill="none" stroke="#FF6B1F" stroke-width="1.4">
+            <animate attributeName="r" values="9;34;9" dur="2.6s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.9;0;0.9" dur="2.6s" repeatCount="indefinite"/></circle>
+          <g fill="#E9E5DA">
+            <circle cx="70" cy="60" r="1.7"/><circle cx="320" cy="80" r="1.7"/><circle cx="300" cy="220" r="1.7"/>
+            <circle cx="90" cy="210" r="1.7"/><circle cx="200" cy="40" r="1.5"/><circle cx="340" cy="160" r="1.5"/>
+            <circle cx="48" cy="140" r="1.5"/><circle cx="150" cy="248" r="1.5"/>
+          </g>
+          <text x="32" y="252" font-family="'Space Mono',monospace" font-size="11" fill="#807c6a">12 escenas · the viaje del activo</text>
+        </svg></div>
+        <div class="gb">
+          <div class="gno">[ 03 ] · EXPERIENCIA INMERSIVA</div>
+          <h3>El viaje<br>del activo</h3>
+          <p class="gd">Una experiencia 3D scroll-driven. Acompaña a un activo desde que nace como un punto de luz hasta que se convierte en la red de un sector entero — el modelo de negocio completo, escena a escena.</p>
+          <div class="gmeta"><span>MOTOR 3D</span><span>12 ESCENAS</span><span>SCROLL</span><span>WEBGL</span></div>
+          <div class="gcta" style="color:var(--amber-hi)"><span>ENTRAR EN LA EXPERIENCIA</span><span class="ar">→</span></div>
+        </div>
+      </a>
+    </div>
+
+    <!-- contenido del entorno -->
+    <div class="folder rv">
+      <div class="fh">
+        <div class="fi"><svg viewBox="0 0 24 24" fill="none" stroke="#DC5212" stroke-width="1.8"><path d="M3 7h6l2 2h10v10H3zM3 7V5h6l2 2"/></svg></div>
+        <div class="ft">Estructura del repositorio — <b>el entorno completo del proyecto CUEVA</b></div>
+      </div>
+      <div class="fl">
+        <div class="fcol">
+          <h4>📁 BP 3 AÑOS</h4>
+          <ul><li>index.html</li><li>CUEVA_PRESENTACION.html</li><li>CUEVA_EXPOSICION_MODELO.html</li><li>CUEVA_PLAN.html</li><li>MEMORIA_BP3.md</li><li>Modelo_Financiero_BP3.xlsx</li></ul>
+        </div>
+        <div class="fcol">
+          <h4>📁 BP 5 AÑOS</h4>
+          <ul><li>index.html</li><li>CUEVA_PRESENTACION.html</li><li>CUEVA_EXPOSICION_MODELO.html</li><li>CUEVA_PLAN.html</li><li>MEMORIA_BP5.md</li><li>Modelo_Financiero_BP5.xlsx</li></ul>
+        </div>
+        <div class="fcol">
+          <h4>📁 ORIGINALES</h4>
+          <ul><li>CUEVA_EXPERIENCIA.html</li><li><span style="color:var(--ink-3)">— experiencia inmersiva 3D —</span></li></ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="fb">CUE<b>V</b>A</div>
+  <div class="fl2">SISTEMA OPERATIVO DE LA CONSTRUCCIÓN · DOSSIER DEL PROYECTO · MAYO 2026 · CONFIDENCIAL</div>
+</footer>
+
+<script>
+(function(){
+  const b=document.getElementById('boot');
+  document.querySelectorAll('#boot .bl').forEach((l,i)=>setTimeout(()=>l.classList.add('in'),300+i*330));
+  setTimeout(()=>b.classList.add('done'),2700);
+  setTimeout(()=>{b.style.display='none';},3600);
+})();
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('show');io.unobserve(e.target);}});},{threshold:.14,rootMargin:'0px 0px -60px 0px'});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+</script>
+</body>
+</html>
